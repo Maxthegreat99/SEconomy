@@ -6,6 +6,7 @@
 	* bank.transfer: Has permission to transfer to other players
 	* bank.resetbal: Has permission to reset another player's account balance.
 
+	* seconomy.world.mobgains: Has permissions to gain reward from mob kills.
 	* seconomy.world.bypassdeathpenalty: Has permission to bypass the death penalty
 	
 	* aliascmd.bypasscooldown: May bypass cooldowns on alias commands

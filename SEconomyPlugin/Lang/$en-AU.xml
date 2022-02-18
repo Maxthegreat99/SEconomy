@@ -9,10 +9,10 @@
 	<s> * /sec[onomy] reload|rl - Reloads SEconomy</s>
 	<s> * /sec[onomy] stop - Stops and unloads SEconomy</s>
 	<s> * /sec[onomy] start - Reloads SEconomy</s>
-	<s>SEconomy is reloaded.</s>
-	<s>seconomy stop: SEconomy is already stopped. Use /sec start to start</s>
-	<s>SEconomy is stopped.</s>
-	<s>seconomy stop: SEconomy is already started. Use /sec stop to stop.</s>
+	<s>SEconomy has reloaded.</s>
+	<s>[SEconomy Stop] SEconomy has already stopped. Use /sec start to start</s>
+	<s>[SEconomy] Has stopped.</s>
+	<s>[SEconomy Stop] SEconomy has already started. Use /sec stop to stop.</s>
 	<s>SEconomy failed to initialize, and will be unavailable for this session.</s>
 	<s>SEconomy has started.</s>
 	<!-- EventHandlers.cs: 15-28 -->
@@ -29,10 +29,10 @@
 	<s>gained</s>
 	<s> for </s>
 	<s>You have {0}.</s>
-	<s>seconomy async: error occurred on a task thread: </s>
+	<s>[SEconomy ASync] Error occurred on a task thread: </s>
 	<!-- ChatCommands.cs: 29-59 -->
 	<s>This server is running {0} by Wolfje</s>
-	<s>"Download here: http://plugins.tw.id.au"</s>
+	<s>"Download here: N/A"</s>
 	<s>You can:</s>
 	<s>* View your balance with /bank bal</s>
 	<s>* Trade players with /bank pay [player] [amount]</s>
@@ -42,27 +42,27 @@
 	<s>* Save the journal with /bank savejournal</s>
 	<s>* Load the journal with /bank loadjournal</s>
 	<s>* Compress the journal with /bank squashjournal</s>
-	<s>seconomy reset: Resetting {0}'s account.</s>
-	<s>seconomy reset:  Reset complete."</s>
-	<s>seconomy reset: Cannot find player \"{0}\" or no bank account found."</s>
-	<s>seconomy reset: You do not have permission to perform this command.</s>
-	<s>bank balance: your account is disabled</s>
-	<s>balance: {0} {1}</s>
+	<s>[SEconomy Reset] Resetting {0}'s account.</s>
+	<s>[SEconomy Reset] Reset complete."</s>
+	<s>[SEconomy Reset] Cannot find player \"{0}\" or no bank account found."</s>
+	<s>[SEconomy Reset] You do not have permission to perform this command.</s>
+	<s>[Bank balance] Your account is disabled</s>
+	<s>[Balance] {0} {1}</s>
 	<s>(disabled)</s>
-	<s>bank balance: Cannot find player or no bank account.</s>
-	<s>seconomy mgr: opening bank manager window</s>
-	<s>seconomy mgr: Window closed because it crashed:</s>
-	<s>seconomy management: window closed</s>
+	<s>[Bank balance] Cannot find player or no bank account.</s>
+	<s>[SEeconomy Mgr] Opening bank manager window</s>
+	<s> mgr: Window closed because it crashed:</s>
+	<s>[SEconomy Management] Window closed</s>
 	<s>Only the console can do that.</s>
-	<s>seconomy xml: Backing up transaction journal.</s>
-	<s>seconomy xml: Loading transaction journal from file</s>
-	<s>bank squashjournal: You do not have permission to perform this command.</s>
+	<s>[SEconomy XML] Backing up transaction journal.</s>
+	<s>[SEconomy XML] Loading transaction journal from file</s>
+	<s>[Bank SquashJournal] You do not have permission to perform this command.</s>
 	<s>Cannot find player by the name of {0}.</s>
-	<s>bank give: \"{0}\" isn't a valid amount of money.</s>
+	<s>[Bank Give]\"{0}\" isn't a valid amount of money.</s>
 	<s>Usage: /bank pay [Player] [Amount]</s>
-	<s>bank pay: You don't have permission to do that.</s>
+	<s>[Bank Pay} You don't have permission to do that.</s>
 	<s>Usage: /bank give|take [Player] [Amount]</s>
-	<s>bank give: You don't have permission to do that.</s>
+	<s>[Bank Give] You don't have permission to do that.</s>
 	<!-- XmlTransactionJournal.cs: 60-84 -->
 	<s>The world account for world {0} is disabled.  Currency will not work for this game.</s>
 	<s>There was an error loading the bank account for this world.  Currency will not work for this game.</s>
@@ -113,23 +113,23 @@
 		* Flags2 - Unused
 		* BankAccountTransactionFK - A unique identifier of the opposite side of this double-entry transaction, therefore binding them together.
 	</s>
-	<s>seconomy backup: Cannot copy {0} to {1}, shadow backups will not work!</s>
-	<s>seconomy journal: writing to disk</s>
-	<s>seconomy journal: Saving your journal failed!</s>
-	<s>seconomy journal: Cannot delete temporary file!</s>
-	<s>seconomy journal: finished backing up.</s>
-	<s>seconomy journal: There was an error saving your journal.  Make sure you have backups.</s>
+	<s>[SEconomy Backup] Cannot copy {0} to {1}, shadow backups will not work!</s>
+	<s>[SEconomy Journal] Writing to disk</s>
+	<s>[SEconomy Journal] Saving your journal failed!</s>
+	<s>[SEconomy Journal] Cannot delete temporary file!</s>
+	<s>[SEconomy Journal] Finished backing up.</s>
+	<s>[SEconomy Journal] There was an error saving your journal.  Make sure you have backups.</s>
 	<s>SEconomy is loading its journal.</s>
-	<s>loading journal</s>
+	<s>Loading journal...</s>
 	<s>[not found, creating new]</s>
 	<s>denied</s>
 	<s>failed</s>
-	<s>decompressing journal</s>
-	<s>parsing accounts</s>
-	<s>upgrading transactions</s>
-	<s>corrupt</s>
+	<s>Decompressing journal</s>
+	<s>Parsing accounts</s>
+	<s>Upgrading transactions</s>
+	<s>Corrupt</s> <!--79--> 
 	<s>Your transaction journal appears to be corrupt and transactions have been lost.\n\nYou will start with a clean journal.\nYour old journal file has been move to SEconomy.journal.xml.gz.corrupt</s>
-	<s>seconomy xml: beginning Squash</s>
+	<s>[Seconomy XML] Beginning Squash</s>
 	<s>re-syncing online accounts.</s>
 	<s>Invalid amount.</s>
 	<s>You need {0} more to make this payment.</s>

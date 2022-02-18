@@ -232,9 +232,18 @@ namespace Wolfje.Plugins.SEconomy.JistAliasModule {
 
 				if (account.Balance < commandCost) {
 					Money difference = commandCost - account.Balance;
-					e.CommandArgs.Player.SendErrorMessage("This command costs {0}. You need {1} more to be able to use this.",
+					if (e.CommandArgs.Player == TSPlayer.Server)
+					{
+						e.CommandArgs.Player.SendErrorMessage("This command costs {0}. You need {1} more to be able to use this.",
 						commandCost.ToLongString(),
 						difference.ToLongString());
+					}
+					else
+					{
+					e.CommandArgs.Player.SendErrorMessage("This command costs {0}. You need {1} more to be able to use this.",
+						commandCost.ToString(),
+						difference.ToString());
+					}
 				}
 
 				try {

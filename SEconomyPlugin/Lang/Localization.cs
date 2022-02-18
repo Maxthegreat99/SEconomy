@@ -98,7 +98,7 @@ namespace Wolfje.Plugins.SEconomy.Lang {
 			}
 
 			if (File.Exists(localePath) == false) {
-				//TShock.Log.ConsoleError("seconomy locale: Language for locale {0} doesn't exist.", Locale);
+				//TShock.Log.ConsoleError("[SEconomy Locale] Language for locale {0} doesn't exist.", Locale);
 				return -1;
 			}
 

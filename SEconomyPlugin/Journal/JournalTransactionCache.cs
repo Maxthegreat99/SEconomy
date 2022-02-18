@@ -17,15 +17,15 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 using System;
-using System.Collections.Generic;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using TShockAPI;
 
-namespace Wolfje.Plugins.SEconomy.Journal {
+namespace Wolfje.Plugins.SEconomy.Journal
+{
 	public class JournalTransactionCache : IDisposable {
 
 		/// <summary>
@@ -97,11 +97,11 @@ namespace Wolfje.Plugins.SEconomy.Journal {
 					BankTransferEventArgs transfer = await sourceAccount.TransferToAsync(destAccount, aggregatedFund.Amount, aggregatedFund.Options, messageBuilder.ToString(), messageBuilder.ToString());
 					if (!transfer.TransferSucceeded) {
 						if (transfer.Exception != null) {
-							TShock.Log.ConsoleError(string.Format("seconomy cache: error source={0} dest={1}: {2}", aggregatedFund.SourceBankAccountK, aggregatedFund.DestinationBankAccountK, transfer.Exception));
+							TShock.Log.ConsoleError(string.Format("[SEconomy Cache] Error source={0} dest={1}: {2}", aggregatedFund.SourceBankAccountK, aggregatedFund.DestinationBankAccountK, transfer.Exception));
 						}
 					}
 				} else {
-					TShock.Log.ConsoleError(string.Format("seconomy cache: transaction cache has no source or destination. source key={0} dest key={1}", aggregatedFund.SourceBankAccountK, aggregatedFund.DestinationBankAccountK));
+					TShock.Log.ConsoleError(string.Format("[SEconomy Cache] Transaction cache has no source or destination. source key={0} dest key={1}", aggregatedFund.SourceBankAccountK, aggregatedFund.DestinationBankAccountK));
 				}
 			}
 		}

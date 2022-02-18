@@ -16,21 +16,14 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+extern alias OTAPI;
 using System;
-using System.Collections.Generic;
-using System.Collections.Concurrent;
-using System.Linq;
 using System.Text;
 using System.Reflection;
-
-using System.Xml.Linq;
-
-using Terraria;
+using OTAPI.Terraria;
 using TerrariaApi.Server;
 using TShockAPI;
-using TShockAPI.Extensions;
 using System.Threading.Tasks;
-using System.Threading;
 
 namespace Wolfje.Plugins.SEconomy {
 
@@ -147,7 +140,7 @@ You do NOT have to restart the server to issue this command.  Just continue as n
 			Console.Write(" Copyright (C) Wolfje, 2014-2016 - ");
 
 			Console.ForegroundColor = ConsoleColor.Blue;
-			Console.Write("http://github.com/tylerjwatson/SEconomy");
+			//Console.Write("http://github.com/tylerjwatson/SEconomy");
 
 			Console.WriteLine("\r\n");
 
@@ -204,10 +197,10 @@ You do NOT have to restart the server to issue this command.  Just continue as n
 		{
 			if (args.Parameters.Count == 0) {
 				args.Player.SendInfoMessage(string.Format(Locale.StringOrDefault(3, "{0} by Wolfje"), GetVersionString()));
-				args.Player.SendInfoMessage(" * http://plugins.tw.id.au");
-				args.Player.SendInfoMessage(Locale.StringOrDefault(5, " * /sec[onomy] reload|rl - Reloads SEconomy"));
-				args.Player.SendInfoMessage(Locale.StringOrDefault(6, " * /sec[onomy] stop - Stops and unloads SEconomy"));
-				args.Player.SendInfoMessage(Locale.StringOrDefault(7, " * /sec[onomy] start - Starts SEconomy"));
+				//args.Player.SendInfoMessage(" * http://plugins.tw.id.au");
+				args.Player.SendInfoMessage(Locale.StringOrDefault(5, $" * {TShock.Config.Settings.CommandSpecifier}sec[onomy] reload|rl - Reloads SEconomy"));
+				args.Player.SendInfoMessage(Locale.StringOrDefault(6, $" * {TShock.Config.Settings.CommandSpecifier}sec[onomy] stop - Stops and unloads SEconomy"));
+				args.Player.SendInfoMessage(Locale.StringOrDefault(7, $" * {TShock.Config.Settings.CommandSpecifier}sec[onomy] start - Starts SEconomy"));
 				return;
 			}
 
@@ -241,11 +234,11 @@ You do NOT have to restart the server to issue this command.  Just continue as n
 					args.Player.SendErrorMessage(Locale.StringOrDefault(12, "SEconomy failed to initialize, and will be unavailable for this session."));
 					return;
 				}
-				args.Player.SendSuccessMessage(Locale.StringOrDefault(8, "SEconomy is reloaded."));
+				args.Player.SendSuccessMessage(Locale.StringOrDefault(8, "SEconomy has reloaded."));
 			} else if (args.Parameters[0].Equals("stop", StringComparison.CurrentCultureIgnoreCase)
 			           && args.Player.Group.HasPermission("seconomy.command.stop") == true) {
 				if (Instance == null) {
-					args.Player.SendErrorMessage(Locale.StringOrDefault(9, "seconomy stop: SEconomy is already stopped. Use /sec start to start"));
+					args.Player.SendErrorMessage(Locale.StringOrDefault(9, $"[SEconomy Stop] SEconomy has already stopped. Use {TShock.Config.Settings.CommandSpecifier}sec start to start"));
 					return;
 				}
 
@@ -254,12 +247,12 @@ You do NOT have to restart the server to issue this command.  Just continue as n
 					Instance = null;
 				});
 
-				args.Player.SendSuccessMessage(Locale.StringOrDefault(10, "SEconomy is stopped."));
+				args.Player.SendSuccessMessage(Locale.StringOrDefault(10, "SEconomy has stopped."));
 				RaiseUnloadedEvent();
 			} else if (args.Parameters[0].Equals("start", StringComparison.CurrentCultureIgnoreCase)
 			           && args.Player.Group.HasPermission("seconomy.command.start") == true) {
 				if (Instance != null) {
-					args.Player.SendErrorMessage(Locale.StringOrDefault(11, "seconomy stop: SEconomy is already started. Use /sec stop to stop."));
+					args.Player.SendErrorMessage(Locale.StringOrDefault(11, $"[SEconomy Stop] SEconomy has already started. Use {TShock.Config.Settings.CommandSpecifier}sec stop to stop."));
 					return;
 				}
 				try {
@@ -293,19 +286,19 @@ You do NOT have to restart the server to issue this command.  Just continue as n
 				int multi = 0;
 
 				if (args.Parameters.Count == 1) {
-					args.Player.SendInfoMessage("sec multi: Reward multiplier: {0}", SEconomyPlugin.Instance.WorldEc.CustomMultiplier);
+					args.Player.SendInfoMessage("[SEconomy Multiplier] Reward multiplier: {0}", SEconomyPlugin.Instance.WorldEc.CustomMultiplier);
 					return;
 				}
 
 				if (int.TryParse(args.Parameters[1], out multi) == false
 				    || multi < 0
 				    || multi > 100) {
-					args.Player.SendErrorMessage("sec multi: Syntax: /sec multi[plier] 1-100");
+					args.Player.SendErrorMessage($"[SEconomy Multiplier] Syntax: {TShock.Config.Settings.CommandSpecifier}sec multi[plier] 1-100");
 					return;
 				}
 
 				SEconomyPlugin.Instance.WorldEc.CustomMultiplier = multi;
-				args.Player.SendInfoMessage("sec multi: Multiplier of {0} set successfully.", multi);
+				args.Player.SendInfoMessage("[SEconomy Multiplier] Multiplier of {0} set successfully.", multi);
 			}
 
 		}

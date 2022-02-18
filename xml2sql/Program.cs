@@ -72,7 +72,7 @@ namespace xml2sql {
 		}
 
 		/// <summary>
-		/// Creates a seconomy database in MySQL based on the create database SQL
+		/// Creates an seconomy database in MySQL based on the create database SQL
 		/// embedded resources.
 		/// </summary>
 		protected void CreateDatabase()
@@ -173,7 +173,7 @@ namespace xml2sql {
 					Connection.QueryIdentity(query, out id, account.UserAccountName, account.WorldID,
 						(int)account.Flags, 0, account.Description, account.BankAccountK);
 				} catch (Exception ex) {
-					TShock.Log.ConsoleError(" seconomy mysql: sql error adding bank account: " + ex.ToString());
+					TShock.Log.ConsoleError("[SEconomy MySQL] Sql error adding bank account: " + ex.ToString());
 					continue;
 				}
 
@@ -193,7 +193,7 @@ namespace xml2sql {
 							oldNewTransactions[transaction.BankAccountTransactionK] = tranId;
 						}
 					} catch (Exception ex) {
-						TShock.Log.ConsoleError(" seconomy mysql: Database error in BeginSourceTransaction: " + ex.Message);
+						TShock.Log.ConsoleError("[SEconomy MySQL] Database error in BeginSourceTransaction: " + ex.Message);
 						continue;
 					}
 				}

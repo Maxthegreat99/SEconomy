@@ -18,10 +18,6 @@
  */
  
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
 using Newtonsoft.Json;
 using TShockAPI;
 
@@ -59,7 +55,7 @@ namespace Wolfje.Plugins.SEconomy {
 				try {
 					System.IO.Directory.CreateDirectory(Config.BaseDirectory);
 				} catch {
-					TShock.Log.ConsoleError("seconomy configuration: Cannot create base directory: {0}", Config.BaseDirectory);
+					TShock.Log.ConsoleError("[SEconomy Configuration] Cannot create base directory: {0}", Config.BaseDirectory);
 					return null;
 				}
 			}
@@ -70,18 +66,17 @@ namespace Wolfje.Plugins.SEconomy {
 				config.path = Path;
 			} catch (Exception ex) {
 				if (ex is System.IO.FileNotFoundException || ex is System.IO.DirectoryNotFoundException) {
-					TShock.Log.ConsoleError("seconomy configuration: Cannot find file or directory. Creating new one.");
+					TShock.Log.ConsoleError("[SEconomy Configuration] Cannot find file or directory. Creating new one.");
 					config = new Config(Path);
 					config.SaveConfiguration();
 				} else if (ex is System.Security.SecurityException) {
-					TShock.Log.ConsoleError("seconomy configuration: Access denied reading file " + Path);
+					TShock.Log.ConsoleError("[SEconomy Configuration] Access denied reading file " + Path);
 				} else {
-					TShock.Log.ConsoleError("seconomy configuration: error " + ex.ToString());
+					TShock.Log.ConsoleError("[SEconomy Configuration] Error " + ex.ToString());
 				}
 			}
 			return config;
 		}
-
 
 		public void SaveConfiguration()
 		{
@@ -91,12 +86,12 @@ namespace Wolfje.Plugins.SEconomy {
 			} catch (Exception ex) {
 
 				if (ex is System.IO.DirectoryNotFoundException) {
-					TShock.Log.ConsoleError("seconomy config: save directory not found: " + path);
+					TShock.Log.ConsoleError("[SEconomy Config] Save directory not found: " + path);
 
 				} else if (ex is UnauthorizedAccessException || ex is System.Security.SecurityException) {
-					TShock.Log.ConsoleError("seconomy config: Access is denied to config: " + path);
+					TShock.Log.ConsoleError("[SEconomy Config] Access is denied to config: " + path);
 				} else {
-					TShock.Log.ConsoleError("seconomy config: Error reading file: " + path);
+					TShock.Log.ConsoleError("[SEconomy Config] Error reading file: " + path);
 					throw;
 				}
 			}

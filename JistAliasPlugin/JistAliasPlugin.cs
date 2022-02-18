@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿extern alias OTAPI;
+using System;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using Terraria;
+using OTAPI.Terraria;
 using TerrariaApi.Server;
-using Wolfje.Plugins.SEconomy.CmdAliasModule;
 
 namespace Wolfje.Plugins.SEconomy.JistAliasModule {
 	[ApiVersion(2, 1)]

@@ -65,13 +65,13 @@ namespace Wolfje.Plugins.SEconomy.Configuration.WorldConfiguration {
 				config = JsonConvert.DeserializeObject<WorldConfig>(fileText);
 			} catch (Exception ex) {
 				if (ex is System.IO.FileNotFoundException || ex is System.IO.DirectoryNotFoundException) {
-					TShock.Log.ConsoleError("seconomy worldconfig: Cannot find file or directory. Creating new one.");
+					TShock.Log.ConsoleError("[SEconomy WorldConfig] Cannot find file or directory. Creating new one.");
 					config = WorldConfig.NewSampleConfiguration();
 					config.SaveConfiguration(Path);
 				} else if (ex is System.Security.SecurityException) {
-					TShock.Log.ConsoleError("seconomy worldconfig: Access denied reading file " + Path);
+					TShock.Log.ConsoleError("[SEconomy WorldConfig] Access denied reading file " + Path);
 				} else {
-					TShock.Log.ConsoleError("seconomy worldconfig: error " + ex.ToString());
+					TShock.Log.ConsoleError("[SEconomy WorldConfig] Error " + ex.ToString());
 				}
 			}
 
@@ -102,12 +102,12 @@ namespace Wolfje.Plugins.SEconomy.Configuration.WorldConfiguration {
 			} catch (Exception ex) {
 
 				if (ex is System.IO.DirectoryNotFoundException) {
-					TShock.Log.ConsoleError("seconomy worldconfig: save directory not found: " + Path);
+					TShock.Log.ConsoleError("[SEconomy WorldConfig] Save directory not found: " + Path);
 
 				} else if (ex is UnauthorizedAccessException || ex is System.Security.SecurityException) {
-					TShock.Log.ConsoleError("seconomy worldconfig: Access is denied to Vault config: " + Path);
+					TShock.Log.ConsoleError("[SEconomy WorldConfig] Access is denied to Vault config: " + Path);
 				} else {
-					TShock.Log.ConsoleError("seconomy worldconfig: Error reading file: " + Path);
+					TShock.Log.ConsoleError("[SEconomy WorldConfig] Error reading file: " + Path);
 					throw;
 				}
 			}

@@ -1,10 +1,12 @@
-﻿using System;
+﻿extern alias OTAPI;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using TerrariaApi.Server;
+using OTAPI.Terraria;
 using Wolfje.Plugins.SEconomy;
 using Wolfje.Plugins.SEconomy.Extensions;
 using Wolfje.Plugins.SEconomy.CmdAliasModule.Extensions;
@@ -29,7 +31,7 @@ namespace Wolfje.Plugins.SEconomy.CmdAliasModule {
 
 		#region "API stub"
 
-		public CmdAliasPlugin(Terraria.Main game)
+		public CmdAliasPlugin(Main game)
 			: base(game)
 		{
 			//we're absolute last in the plugin order.

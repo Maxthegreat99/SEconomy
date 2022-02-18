@@ -140,18 +140,18 @@ namespace Wolfje.Plugins.SEconomy.CmdAliasModule {
 
                 
 				if ((playerAccount = SEconomyPlugin.Instance.GetBankAccount(e.CommandArgs.Player)) == null) {
-					e.CommandArgs.Player.SendErrorMessage("This command costs money and you don't have a bank account.  Please log in first.");
+					e.CommandArgs.Player.SendErrorMessage("This command costs money and you don't have a bank account. Please log in first.");
 					return;
 				}
 
 				if (playerAccount.IsAccountEnabled == false) {
-					e.CommandArgs.Player.SendErrorMessage("This command costs money and your account is disabled.");
+					e.CommandArgs.Player.SendErrorMessage("This command costs money but your bank account is disabled.");
 					return;
 				}
 
 				if (playerAccount.Balance < commandCost) {
 					Money difference = commandCost - playerAccount.Balance;
-					e.CommandArgs.Player.SendErrorMessage("This command costs {0}. You need {1} more to be able to use this.", commandCost.ToLongString(), difference.ToLongString());
+					e.CommandArgs.Player.SendErrorMessage("This command costs {0}. You need {1} more to be able to use this.", commandCost.ToString(), difference.ToString());
 				}
 
 				try {
@@ -213,7 +213,6 @@ namespace Wolfje.Plugins.SEconomy.CmdAliasModule {
 					bool takeMoreThanOne = !string.IsNullOrEmpty(match.Groups[2].Value);
 					StringBuilder sb = new StringBuilder();
 
-
 					//take n
 					if (!takeMoreThanOne && parameterFrom > 0) {
 						if (parameterFrom <= parameters.Count) {
@@ -250,7 +249,7 @@ namespace Wolfje.Plugins.SEconomy.CmdAliasModule {
 		/// <summary>
 		/// Executes the AliasCommand.  Will either forward the command to the tshock handler or do something else
 		/// </summary>
-		protected void DoCommands(AliasCommand alias, TShockAPI.TSPlayer player, List<string> parameters)
+		protected void DoCommands(AliasCommand alias, TSPlayer player, List<string> parameters)
 		{
 
 			//loop through each alias and do the commands.
@@ -265,7 +264,7 @@ namespace Wolfje.Plugins.SEconomy.CmdAliasModule {
 				//replace parameter markers with actual parameter values
 				ReplaceParameterMarkers(parameters, ref mangledString);
 
-				mangledString = mangledString.Replace("$calleraccount", player.User.Name);
+				mangledString = mangledString.Replace("$calleraccount", player.Name);
 				mangledString = mangledString.Replace("$callername", player.Name);
 
 				//$random(x,y) support.  Returns a random number between x and y

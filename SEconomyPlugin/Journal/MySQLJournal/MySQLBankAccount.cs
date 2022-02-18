@@ -20,13 +20,10 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using TShockAPI;
 using TShockAPI.DB;
-using TShockAPI.Extensions;
 using Wolfje.Plugins.SEconomy.Extensions;
-
 
 namespace Wolfje.Plugins.SEconomy.Journal.MySQLJournal {
 	public class MySQLBankAccount : IBankAccount {
@@ -77,7 +74,7 @@ namespace Wolfje.Plugins.SEconomy.Journal.MySQLJournal {
 			get {
 				List<ITransaction> tranList = new List<ITransaction>();
 
-				using (QueryResult reader = journal.Connection.QueryReader("SELECT * FROM `bank_account_transaction` WHERE `bank_account_fk` = " + this.BankAccountK + ";")) {
+				using (QueryResult reader = journal.Connection.QueryReader("SELECT * FROM `bank_account_transaction` WHERE `bank_account_fk` = @0;", this.BankAccountK)) {
 					foreach (IDataReader item in reader.AsEnumerable()) {
 						MySQLTransaction bankTrans = new MySQLTransaction((IBankAccount)this) {
 							BankAccountFK = item.Get<long>("bank_account_fk"),
@@ -105,10 +102,10 @@ namespace Wolfje.Plugins.SEconomy.Journal.MySQLJournal {
 		public void ResetAccountTransactions(long BankAccountK)
 		{
 			try {
-				journal.Connection.Query("DELETE FROM `bank_account_transaction` WHERE `bank_account_fk` = " + this.BankAccountK + ";");
+				journal.Connection.Query("DELETE FROM `bank_account_transaction` WHERE `bank_account_fk` = @0;", this.BankAccountK);
                 this.Balance = 0;
 			} catch {
-				TShock.Log.ConsoleError(" seconomy mysql: MySQL command error in ResetAccountTransactions");
+				TShock.Log.ConsoleError("[SEconomy MySQL] MySQL command error in ResetAccountTransactions");
 			}
 		}
 
@@ -125,9 +122,9 @@ namespace Wolfje.Plugins.SEconomy.Journal.MySQLJournal {
 		public void SyncBalance(IDbConnection conn)
 		{
 			try {
-				this.Balance = Convert.ToInt64(journal.Connection.QueryScalarExisting<decimal>("SELECT IFNULL(SUM(Amount), 0) FROM `bank_account_transaction` WHERE `bank_account_transaction`.`bank_account_fk` = " + this.BankAccountK + ";"));
+				this.Balance = Convert.ToInt64(journal.Connection.QueryScalarExisting<decimal>("SELECT IFNULL(SUM(Amount), 0) FROM `bank_account_transaction` WHERE `bank_account_transaction`.`bank_account_fk` = @0;", this.BankAccountK));
 			} catch (Exception ex) {
-				TShock.Log.ConsoleError(" seconomy mysql: SQL error in SyncBalance: " + ex.Message);
+				TShock.Log.ConsoleError("[SEconomy MySQL] SQL error in SyncBalance: " + ex.Message);
 			}
 		}
 
@@ -139,9 +136,9 @@ namespace Wolfje.Plugins.SEconomy.Journal.MySQLJournal {
 		public void SyncBalance()
 		{
 			try {
-				this.Balance = Convert.ToInt64(journal.Connection.QueryScalar<decimal>("SELECT IFNULL(SUM(Amount), 0) FROM `bank_account_transaction` WHERE `bank_account_transaction`.`bank_account_fk` = " + this.BankAccountK + ";"));
+				this.Balance = Convert.ToInt64(journal.Connection.QueryScalar<decimal>("SELECT IFNULL(SUM(Amount), 0) FROM `bank_account_transaction` WHERE `bank_account_transaction`.`bank_account_fk` = @0;", this.BankAccountK));
 			} catch (Exception ex) {
-				TShock.Log.ConsoleError(" seconomy mysql: SQL error in SyncBalance: " + ex.Message);
+				TShock.Log.ConsoleError("[SEconomy MySQL] SQL error in SyncBalance: " + ex.Message);
 			}
 		}
 

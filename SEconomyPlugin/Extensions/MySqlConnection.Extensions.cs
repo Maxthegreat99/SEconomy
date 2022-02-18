@@ -50,7 +50,7 @@ namespace Wolfje.Plugins.SEconomy.Extensions {
 
 				result = await Task.Run(() => command.ExecuteNonQuery());
 			} catch (Exception ex) {
-				TShock.Log.ConsoleError("seconomy mysql: QueryAsync error: {0}", ex.Message);
+				TShock.Log.ConsoleError("[SEconomy MySQL] QueryAsync error: {0}", ex.Message);
 				return -1;
 			} finally {
 				if (command != null) {
@@ -80,7 +80,7 @@ namespace Wolfje.Plugins.SEconomy.Extensions {
 				try {
 					reader = com.ExecuteReader();
 				} catch (Exception ex) {
-					TShock.Log.ConsoleError("seconomy mysql: Query error: {0}", ex.Message);
+					TShock.Log.ConsoleError("[SEconomy MySQL] Query error: {0}", ex.Message);
                     
 					if (reader != null) {
 						reader.Dispose();
@@ -90,7 +90,7 @@ namespace Wolfje.Plugins.SEconomy.Extensions {
 
 			sw.Stop();
 			if (sw.Elapsed.TotalSeconds > 10) {
-				TShock.Log.ConsoleError("seconomy mysql: Your MySQL server took {0} seconds to respond!\r\nConsider squashing your journal.", sw.Elapsed.TotalSeconds);
+				TShock.Log.ConsoleError("[SEconomy MySQL] Your MySQL server took {0} seconds to respond!\r\nConsider squashing your journal.", sw.Elapsed.TotalSeconds);
 			}
 
 			return reader;
@@ -114,14 +114,14 @@ namespace Wolfje.Plugins.SEconomy.Extensions {
 				try {
 					r = com.ExecuteNonQuery();
 				} catch (Exception ex) {
-					TShock.Log.ConsoleError("seconomy mysql: Query error: {0}", ex.Message);
+					TShock.Log.ConsoleError("[SEconomy MySQL] Query error: {0}", ex.Message);
 					r = -1;
 				}
 			}
 
 			sw.Stop();
 			if (sw.Elapsed.TotalSeconds > 10) {
-				TShock.Log.ConsoleError("seconomy mysql: Your MySQL server took {0} seconds to respond!\r\nConsider squashing your journal.", sw.Elapsed.TotalSeconds);
+				TShock.Log.ConsoleError("[SEconomy MySQL] Your MySQL server took {0} seconds to respond!\r\nConsider squashing your journal.", sw.Elapsed.TotalSeconds);
 			}
 
 			return r;
@@ -156,14 +156,14 @@ namespace Wolfje.Plugins.SEconomy.Extensions {
 						identity = com.LastInsertedId;
 					}
 				} catch (Exception ex) {
-					TShock.Log.ConsoleError("seconomy mysql: Query error: {0}", ex.Message);
+					TShock.Log.ConsoleError("[SEconomy MySQL] Query error: {0}", ex.Message);
 					affected = -1;
 				}
 			}
 
 			sw.Stop();
 			if (sw.Elapsed.TotalSeconds > 10) {
-				TShock.Log.ConsoleError("seconomy mysql: Your MySQL server took {0} seconds to respond!\r\nConsider squashing your journal.", sw.Elapsed.TotalSeconds);
+				TShock.Log.ConsoleError("[SEconomy MySQL] Your MySQL server took {0} seconds to respond!\r\nConsider squashing your journal.", sw.Elapsed.TotalSeconds);
 			}
 
 			return affected;
@@ -186,7 +186,7 @@ namespace Wolfje.Plugins.SEconomy.Extensions {
 				try {
 					affected = com.ExecuteNonQuery();
 				} catch (Exception ex) {
-					TShock.Log.ConsoleError("seconomy mysql: Query error: {0}", ex.Message);
+					TShock.Log.ConsoleError("[SEconomy MySQL] Query error: {0}", ex.Message);
 					affected = -1;
 				}
 				identity = com.LastInsertedId;
@@ -194,7 +194,7 @@ namespace Wolfje.Plugins.SEconomy.Extensions {
 
 			sw.Stop();
 			if (sw.Elapsed.TotalSeconds > 10) {
-				TShock.Log.ConsoleError("seconomy mysql: Your MySQL server took {0} seconds to respond!\r\nConsider squashing your journal.", sw.Elapsed.TotalSeconds);
+				TShock.Log.ConsoleError("[SEconomy MySQL] Your MySQL server took {0} seconds to respond!\r\nConsider squashing your journal.", sw.Elapsed.TotalSeconds);
 			}
 
 			return affected;
@@ -234,12 +234,12 @@ namespace Wolfje.Plugins.SEconomy.Extensions {
 					}
 				}
 			} catch (Exception ex) {
-				TShock.Log.ConsoleError("seconomy mysql: Query error: {0}", ex.Message);
+				TShock.Log.ConsoleError("[SEconomy MySQL] Query error: {0}", ex.Message);
 				result = default(T);
 			}
 			sw.Stop();
 			if (sw.Elapsed.TotalSeconds > 10) {
-				TShock.Log.ConsoleError("seconomy mysql: Your MySQL server took {0} seconds to respond!\r\nConsider squashing your journal.", sw.Elapsed.TotalSeconds);
+				TShock.Log.ConsoleError("[SEconomy MySQL] Your MySQL server took {0} seconds to respond!\r\nConsider squashing your journal.", sw.Elapsed.TotalSeconds);
 			}
 
 			return (T)result;
@@ -265,14 +265,14 @@ namespace Wolfje.Plugins.SEconomy.Extensions {
 						return default(T);
 					}
 				} catch (Exception ex) {
-					TShock.Log.ConsoleError("seconomy mysql: Query error: {0}", ex.Message);
+					TShock.Log.ConsoleError("[SEconomy MySQL] Query error: {0}", ex.Message);
 					result = default(T);
 				}
 			}
 
 			sw.Stop();
 			if (sw.Elapsed.TotalSeconds > 10) {
-				TShock.Log.ConsoleError("seconomy mysql: Your MySQL server took {0} seconds to respond!\r\nConsider squashing your journal.", 
+				TShock.Log.ConsoleError("[SEconomy MySQL] Your MySQL server took {0} seconds to respond!\r\nConsider squashing your journal.", 
 					sw.Elapsed.TotalSeconds);
 				result = default(T);
 			}
@@ -300,14 +300,14 @@ namespace Wolfje.Plugins.SEconomy.Extensions {
 						return default(T);
 					}
 				} catch (Exception ex) {
-					TShock.Log.ConsoleError("seconomy mysql: Query error: {0}", ex.Message);
+					TShock.Log.ConsoleError("[SEconomy MySQL] Query error: {0}", ex.Message);
 					result = default(T);
 				}
 			}
 
 			sw.Stop();
 			if (sw.Elapsed.TotalSeconds > 10) {
-				TShock.Log.ConsoleError("seconomy mysql: Your MySQL server took {0} seconds to respond!\r\nConsider squashing your journal.", sw.Elapsed.TotalSeconds);
+				TShock.Log.ConsoleError("[SEconomy MySQL] Your MySQL server took {0} seconds to respond!\r\nConsider squashing your journal.", sw.Elapsed.TotalSeconds);
 			}
 
 			return (T)result;

@@ -126,7 +126,7 @@ namespace Wolfje.Plugins.SEconomy.Forms {
             sourceAccList.Clear();
             gvAccounts.DataSource = null;
 
-            tshockAccounts = await Task.Run(() => TShock.Users.GetUsers().Select(acc => acc.Name).ToList());
+            tshockAccounts = await Task.Run(() => TShock.UserAccounts.GetUserAccounts().Select(acc => acc.Name).ToList());
 
             foreach (Journal.IBankAccount account in SecInstance.RunningJournal.BankAccounts) {
                 int p = Convert.ToInt32(((double)i / (double)SecInstance.RunningJournal.BankAccounts.Count) * 100);

@@ -1,9 +1,6 @@
 ﻿using Jint.Native;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Wolfje.Plugins.Jist;
 using Wolfje.Plugins.Jist.Framework;
 using Wolfje.Plugins.SEconomy.CmdAliasModule;

@@ -1,144 +1,21 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{A3DFC107-09D3-4BC4-BE73-CE7D1CC98495}</ProjectGuid>
+    <TargetFramework>net6.0-windows</TargetFramework>
     <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Wolfje.Plugins.SEconomy</RootNamespace>
     <AssemblyName>Wolfje.Plugins.SEconomy</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>TRACE;DEBUG;__PREVIEW</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\References\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="OTAPI">
-      <HintPath>..\References\OTAPI.dll</HintPath>
-      <Aliases>OTAPI</Aliases>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Data.Linq" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.Security" />
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
-    <Reference Include="MySql.Data">
-      <HintPath>..\References\MySql.Data.dll</HintPath>
-    </Reference>
-    <Reference Include="TerrariaServer">
-      <HintPath>..\References\TerrariaServer.exe</HintPath>
-    </Reference>
-    <Reference Include="TShockAPI">
-      <HintPath>..\References\TShockAPI.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="ChatCommands.cs" />
-    <Compile Include="Configuration\Config.cs" />
-    <Compile Include="Configuration\MoneyProperties.cs" />
-    <Compile Include="Configuration\SQLConnectionProperties.cs" />
-    <Compile Include="Configuration\WorldConfiguration\WorldConfig.cs" />
-    <Compile Include="ConsoleEx.cs" />
-    <Compile Include="Economy\Money.cs" />
-    <Compile Include="Enumerations.cs" />
-    <Compile Include="EventHandlers.cs" />
-    <Compile Include="Extensions\DataReaderExtensions.cs" />
-    <Compile Include="Extensions\MySqlCommand.Extensions.cs" />
-    <Compile Include="Extensions\MySqlConnection.Extensions.cs" />
-    <Compile Include="Extensions\QueryResult.Extensions.cs" />
-    <Compile Include="Extensions\String.Extensions.cs" />
-    <Compile Include="Extensions\TShockCommand.Extensions.cs" />
-    <Compile Include="Extensions\Type.Extensions.cs" />
-    <Compile Include="Forms\CAccountManagementWnd.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\CAccountManagementWnd.Designer.cs">
-      <DependentUpon>CAccountManagementWnd.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\CModifyBalanceWnd.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\CModifyBalanceWnd.Designer.cs">
-      <DependentUpon>CModifyBalanceWnd.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\Form.Extensions.cs" />
-    <Compile Include="Journal\BankAccountFlags.cs" />
-    <Compile Include="Journal\BankAccountTransactionFlags.cs" />
-    <Compile Include="Journal\BankAccountTransferOptions.cs" />
-    <Compile Include="Journal\BankTransferEventArgs.cs" />
-    <Compile Include="Journal\IBankAccount.cs" />
-    <Compile Include="Journal\ITransaction.cs" />
-    <Compile Include="Journal\ITransactionJournal.cs" />
-    <Compile Include="Journal\MySQLJournal\MySQLBankAccount.cs" />
-    <Compile Include="Journal\MySQLJournal\MySQLTransaction.cs" />
-    <Compile Include="Journal\MySQLJournal\MySQLTransactionJournal.cs" />
-    <Compile Include="Journal\PendingTransactionEventArgs.cs" />
-    <Compile Include="Journal\JournalLoadingPercentChangedEventArgs.cs" />
-    <Compile Include="Journal\PurgeOptions.cs" />
-    <Compile Include="Journal\XMLJournal\XmlBankAccount.cs" />
-    <Compile Include="Journal\XMLJournal\XmlTransaction.cs" />
-    <Compile Include="Journal\JournalTransactionCache.cs" />
-    <Compile Include="Journal\XMLJournal\XmlTransactionJournal.cs" />
-    <Compile Include="Lang\Localization.cs" />
-    <Compile Include="Packets\DamageNPC.cs" />
-    <Compile Include="Packets\PacketMarshal.cs" />
-    <Compile Include="Packets\StrikeNPC.cs" />
-    <Compile Include="Packets\TerrariaPacket.cs" />
-    <Compile Include="Packets\UpdateNPC.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-    <Compile Include="SEconomy.cs" />
-    <Compile Include="SEconomyPlugin.cs" />
-    <Compile Include="WorldEconomy.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Forms\CAccountManagementWnd.resx">
-      <DependentUpon>CAccountManagementWnd.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\CModifyBalanceWnd.resx">
-      <DependentUpon>CModifyBalanceWnd.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
+    <Content Include="appsettings.json" />
     <Content Include="changes.txt" />
-    <None Include="Resources\arrow-return-180-left.png" />
-    <None Include="Resources\cross-script.png" />
     <EmbeddedResource Include="Lang\%24en-AU.xml" />
     <EmbeddedResource Include="Journal\MySQLJournal\DatabaseScripts\create%241.sql" />
     <Content Include="Permissions.txt" />
@@ -146,20 +23,13 @@
   <ItemGroup>
     <Service Include="{3259AA49-8AA1-44D3-9025-A0B520596A8C}" />
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
-    <None Include="App.Config" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
+    <PackageReference Include="Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers" Version="0.4.355802">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Windows.Compatibility" Version="7.0.0" />
+    <PackageReference Include="TShock" Version="5.1.3" />
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
-  <Target Name="AfterBuild">
-    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(SolutionDir)\..\ServerInstance4.3\ServerPlugins" />
-  </Target>
-  <ItemGroup />
 </Project>

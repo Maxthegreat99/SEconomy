@@ -1,10 +1,9 @@
-extern alias OTAPI;
 using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Threading;
 using TerrariaApi.Server;
-using OTAPI.Terraria;
+using Terraria;
 using Wolfje.Plugins.SEconomy.Configuration.WorldConfiguration;
 using Wolfje.Plugins.SEconomy.Journal;
 using TShockAPI;
@@ -95,7 +94,7 @@ namespace Wolfje.Plugins.SEconomy
 
         protected void Game_Update(EventArgs args)
         {
-            foreach (OTAPI.Terraria.NPC npc in OTAPI.Terraria.Main.npc)
+            foreach (NPC npc in Main.npc)
             {
                 if (npc == null || npc.townNPC == true || npc.lifeMax == 0)
                 {
@@ -162,7 +161,7 @@ namespace Wolfje.Plugins.SEconomy
         /// <summary>
         /// Should occur when an NPC dies; gives rewards out to all the players that hit it.
         /// </summary>
-        protected void GiveRewardsForNPC(OTAPI.Terraria.NPC NPC)
+        protected void GiveRewardsForNPC(NPC NPC)
         {
             List<PlayerDamage> playerDamageList = null;
             IBankAccount account;
@@ -364,16 +363,16 @@ namespace Wolfje.Plugins.SEconomy
 
             if (args.MsgID == PacketTypes.NpcStrike)
             {
-                OTAPI.Terraria.NPC npc = null;
+                NPC npc = null;
                 Packets.DamageNPC dmgPacket = Packets.PacketMarshal.MarshalFromBuffer<Packets.DamageNPC>(bufferSegment);
 
-                if (dmgPacket.NPCID < 0 || dmgPacket.NPCID > OTAPI.Terraria.Main.npc.Length
-                    || args.Msg.whoAmI < 0 || dmgPacket.NPCID > OTAPI.Terraria.Main.player.Length)
+                if (dmgPacket.NPCID < 0 || dmgPacket.NPCID > Main.npc.Length
+                    || args.Msg.whoAmI < 0 || dmgPacket.NPCID > Main.player.Length)
                 {
                     return;
                 }
 
-                if ((npc = OTAPI.Terraria.Main.npc.ElementAtOrDefault(dmgPacket.NPCID)) == null)
+                if ((npc = Main.npc.ElementAtOrDefault(dmgPacket.NPCID)) == null)
                 {
                     return;
                 }
@@ -399,7 +398,7 @@ namespace Wolfje.Plugins.SEconomy
                     //occurs when a player hits another player.  ignoreClient is the player that hit, e.number is the 
                     //player that got hit, and e.number4 is a flag indicating PvP damage
 
-                    if (Convert.ToBoolean(e.number4) && OTAPI.Terraria.Main.player[e.number] != null)
+                    if (Convert.ToBoolean(e.number4) && Main.player[e.number] != null)
                     {
                         PlayerHitPlayer(e.ignoreClient, e.number);
                     }
@@ -422,7 +421,7 @@ namespace Wolfje.Plugins.SEconomy
     /// </summary>
     class PlayerDamage
     {
-        public OTAPI.Terraria.Player Player;
+        public Player Player;
         public double Damage;
     }
 

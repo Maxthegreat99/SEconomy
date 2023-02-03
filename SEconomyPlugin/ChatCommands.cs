@@ -16,7 +16,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-extern alias OTAPI;
 using System;
 using System.Linq;
 using System.Threading;
@@ -123,39 +122,6 @@ namespace Wolfje.Plugins.SEconomy
 					args.Player.SendInfoMessage(SEconomyPlugin.Locale.StringOrDefault(46, "[Bank Balance] Cannot find player or bank account (You might need to login)."));
 				}
 			} else if (args.Parameters[0].Equals("mgr")) {
-				if (args.Player.Group.HasPermission("bank.mgr")) {
-
-					if (!OTAPI.ReLogic.OS.Platform.IsWindows)
-					{
-						args.Player.SendErrorMessage("This can only be used on a Windows operating system."); //Requires WinForms, I (Quinci) do not know how to workaround this yet
-						return;
-					}
-
-					if (args.Player is TShockAPI.TSServerPlayer) {
-						Thread t = new Thread(() => {
-							Forms.CAccountManagementWnd wnd = new Forms.CAccountManagementWnd(Parent);
-							TShock.Log.ConsoleInfo(SEconomyPlugin.Locale.StringOrDefault(47, "[SEconomy Manager] Opening bank manager window..."));
-
-							//writing the journal is not possible when you're fucking with it in the manager
-							//last thing you want is for half baked changes to be pushed to disk
-							Parent.RunningJournal.BackupsEnabled = false;
-
-							try {
-								wnd.ShowDialog();
-							} catch (Exception ex) {
-								TShock.Log.ConsoleError(SEconomyPlugin.Locale.StringOrDefault(48, "[SEconomy Manager] Window closed because it crashed: ") + ex.ToString());
-							}
-
-							Parent.RunningJournal.BackupsEnabled = true;
-							TShock.Log.ConsoleInfo(SEconomyPlugin.Locale.StringOrDefault(49, "[SEconomy Manager] Window closed"));
-						});
-
-						t.SetApartmentState(ApartmentState.STA);
-						t.Start();
-					} else {
-						args.Player.SendErrorMessage(SEconomyPlugin.Locale.StringOrDefault(50, "Only the console can do that."));
-					}
-				}
 
 			} else if (args.Parameters[0].Equals("savejournal")) {
 				if (args.Player.Group.HasPermission("bank.savejournal")) {

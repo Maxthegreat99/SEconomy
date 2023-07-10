@@ -1,85 +1,40 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{2B22A9FE-54A9-4ED0-9F25-1B436DE3A33D}</ProjectGuid>
+    <TargetFramework>net6.0-windows7.0</TargetFramework>
     <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Wolfje.Plugins.SEconomy.JistAliasModule</RootNamespace>
     <AssemblyName>Wolfje.Plugins.SEconomy.JistAliasModule</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <AssemblyTitle>JistAliasPlugin</AssemblyTitle>
+    <Product>JistAliasPlugin</Product>
+    <Copyright>Copyright ©  2014</Copyright>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="OTAPI">
-      <HintPath>..\References\OTAPI.dll</HintPath>
-      <Aliases>OTAPI</Aliases>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
-    <Reference Include="TerrariaServer">
-      <HintPath>..\References\TerrariaServer.exe</HintPath>
-    </Reference>
-    <Reference Include="TShockAPI">
-      <HintPath>..\References\TShockAPI.dll</HintPath>
-    </Reference>
-    <Reference Include="Wolfje.Plugins.Jist, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\References\Wolfje.Plugins.Jist.dll</HintPath>
-    </Reference>
+    <None Remove="C:\Users\mcjac\.nuget\packages\tshock\5.2.0\contentFiles\any\net6.0\HttpServer.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AliasLib\stdalias.cs" />
-    <Compile Include="JistAlias.cs" />
-    <Compile Include="JistAliasPlugin.cs" />
-    <Compile Include="JScriptAliasCommand.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\CmdAliasPlugin\CmdAliasPlugin.csproj">
-      <Project>{c8da7e2b-b4b7-44c6-812d-310853dd0910}</Project>
-      <Name>CmdAliasPlugin</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\SEconomyPlugin\SEconomyPlugin.csproj">
-      <Project>{a3dfc107-09d3-4bc4-be73-ce7d1cc98495}</Project>
-      <Name>SEconomyPlugin</Name>
-    </ProjectReference>
+    <Reference Include="Jint">
+      <HintPath>..\..\Jist\References\Jint\Jint\obj\Release\Jint.dll</HintPath>
+    </Reference>
+    <Reference Include="Wolfje.Plugins.Jist">
+      <HintPath>..\..\Jist\obj\Release\net6.0\Wolfje.Plugins.Jist.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+  <ItemGroup>
+    <ProjectReference Include="..\CmdAliasPlugin\CmdAliasPlugin.csproj" />
+    <ProjectReference Include="..\SEconomyPlugin\SEconomyPlugin.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
+    <PackageReference Include="TShock" Version="5.2.0" />
+  </ItemGroup>
   <Target Name="AfterBuild">
     <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(SolutionDir)\..\ServerInstance4.3\ServerPlugins" />
   </Target>

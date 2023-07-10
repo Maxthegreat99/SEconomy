@@ -38,7 +38,6 @@ namespace Wolfje.Plugins.SEconomy
 			IBankAccount selectedAccount = Parent.GetBankAccount(args.Player);
 			IBankAccount callerAccount = Parent.GetBankAccount(args.Player);
 			string namePrefix = "Your";
-
 			if (args.Parameters.Count == 0) {
 				args.Player.SendInfoMessage(SEconomyPlugin.Locale.StringOrDefault(28, "This server is running {0} by Wolfje"), Parent.PluginInstance.GetVersionString());
 				//args.Player.SendInfoMessage(SEconomyPlugin.Locale.StringOrDefault(29, "Download here: http://plugins.tw.id.au")); //Site is dead, and this is not maintained by wolfje anymore

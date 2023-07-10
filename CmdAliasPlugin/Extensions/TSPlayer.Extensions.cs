@@ -1,9 +1,9 @@
-﻿extern alias OTAPI;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using TShockAPI;
 using Wolfje.Plugins.SEconomy.Extensions;
-using OTAPI.Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 
 namespace Wolfje.Plugins.SEconomy.CmdAliasModule.Extensions {
 	public static class TSPlayerExtensions {

@@ -1,7 +1,6 @@
-﻿extern alias OTAPI;
-using System;
+﻿using System;
 using System.Reflection;
-using OTAPI.Terraria;
+using Terraria;
 using TerrariaApi.Server;
 
 namespace Wolfje.Plugins.SEconomy.JistAliasModule {

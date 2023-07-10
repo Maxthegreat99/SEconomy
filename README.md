@@ -11,7 +11,7 @@ SEconomy - Server-sided currency, economy and ranking system for TShock servers
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=DWGM3AWJT4UGU)
 
 ## Update for 1.4
-See https://github.com/Quinci135/Jist for an updated Jist (just the plugin, not the Jint runtime)  
+See https://github.com/Maxthegreat99/Jist for an updated Jist (just the plugin, not the Jint runtime)  
 View [permissions here.](SEconomyPlugin/Permissions.txt)  
 This is not fully tested. Be sure to have backups as needed.
 

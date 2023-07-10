@@ -57,10 +57,6 @@ namespace Wolfje.Plugins.SEconomy
 					args.Player.SendInfoMessage(SEconomyPlugin.Locale.StringOrDefault(34, $"* Spawn/delete money with {TShock.Config.Settings.CommandSpecifier}bank give|take <player> <amount>"));
 				}
 
-				if (args.Player.Group.HasPermission("bank.mgr")) {
-					args.Player.SendInfoMessage(SEconomyPlugin.Locale.StringOrDefault(35, $"* Spawn the account manager GUI on the server with {TShock.Config.Settings.CommandSpecifier}bank mgr"));
-				}
-
 				if (args.Player.Group.HasPermission("bank.savejournal")) {
 					args.Player.SendInfoMessage(SEconomyPlugin.Locale.StringOrDefault(36, $"* Save the journal with {TShock.Config.Settings.CommandSpecifier}bank savejournal"));
 				}
@@ -120,9 +116,7 @@ namespace Wolfje.Plugins.SEconomy
 				} else {
 					args.Player.SendInfoMessage(SEconomyPlugin.Locale.StringOrDefault(46, "[Bank Balance] Cannot find player or bank account (You might need to login)."));
 				}
-			} else if (args.Parameters[0].Equals("mgr")) {
-
-			} else if (args.Parameters[0].Equals("savejournal")) {
+			}else if (args.Parameters[0].Equals("savejournal")) {
 				if (args.Player.Group.HasPermission("bank.savejournal")) {
 					args.Player.SendInfoMessage(SEconomyPlugin.Locale.StringOrDefault(51, "[SEconomy XML] Backing up transaction journal."));
 

@@ -15,6 +15,9 @@
     <None Remove="C:\Users\mcjac\.nuget\packages\tshock\5.2.0\contentFiles\any\net6.0\HttpServer.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="Jint">
+      <HintPath>..\..\Jist\References\Jint\Jint\obj\Release\Jint.dll</HintPath>
+    </Reference>
     <Reference Include="System.Data.Entity" />
   </ItemGroup>
   <ItemGroup>

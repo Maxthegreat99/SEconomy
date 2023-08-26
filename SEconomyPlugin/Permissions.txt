@@ -1,10 +1,13 @@
 ﻿Permissions
 
 	* bank.viewothers: Has permission to view other people's account balances
-	* bank.modifyothers: Has permission to enable/disable, lock accounts to world etc.
 	* bank.worldtransfer: Has permission to pay players from the world account
 	* bank.transfer: Has permission to transfer to other players
-	* bank.resetbal: Has permission to reset another player's account balance.
+	* bank.reset: Has permission to reset another player's account balance.
+	* bank.leaderboard: Has permission to see the leaderboard for everyone's balance.
+	* bank.savejournal: Has permission to save the journal.
+	* bank.loadjournal: Has permission to load the journal.
+	* bank.squashjournal: Has permission to compress the journal.
 
 	* seconomy.world.mobgains: Has permissions to gain reward from mob kills.
 	* seconomy.world.bypassdeathpenalty: Has permission to bypass the death penalty

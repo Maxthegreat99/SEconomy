@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net6.0-windows7.0</TargetFramework>
+    <TargetFramework>net6.0-windows</TargetFramework>
     <OutputType>Exe</OutputType>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <AssemblyTitle>xml2sql</AssemblyTitle>
@@ -15,15 +15,13 @@
     <None Remove="C:\Users\mcjac\.nuget\packages\tshock\5.2.0\contentFiles\any\net6.0\HttpServer.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Jint">
-      <HintPath>..\..\Jist\References\Jint\Jint\obj\Release\Jint.dll</HintPath>
-    </Reference>
     <Reference Include="System.Data.Entity" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SEconomyPlugin\SEconomyPlugin.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Jint" Version="2.11.58" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
     <PackageReference Include="TShock" Version="5.2.0" />

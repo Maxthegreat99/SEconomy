@@ -38,8 +38,9 @@ namespace Wolfje.Plugins.SEconomy {
 		public MoneyProperties MoneyConfiguration = new MoneyProperties();
 		public Configuration.SQLConnectionProperties SQLConnectionProperties = new Configuration.SQLConnectionProperties();
 		public bool EnableProfiler = false;
-
-		public Config(string path)
+		public bool ConsoleLogJournalBackup = true;
+		public int SquashJournalIntervalMinutes = 5;
+        public Config(string path)
 		{
 			this.path = path;
 		}

@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net6.0-windows7.0</TargetFramework>
+    <TargetFramework>net6.0-windows</TargetFramework>
     <OutputType>Library</OutputType>
     <RootNamespace>Wolfje.Plugins.SEconomy.SEconomyScriptPlugin</RootNamespace>
     <AssemblyName>Wolfje.Plugins.SEconomy.SEconomyScriptPlugin</AssemblyName>
@@ -14,14 +14,6 @@
   </PropertyGroup>
   <ItemGroup>
     <None Remove="C:\Users\mcjac\.nuget\packages\tshock\5.2.0\contentFiles\any\net6.0\HttpServer.dll" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="Jint">
-      <HintPath>..\..\Jist\References\Jint\Jint\obj\Release\Jint.dll</HintPath>
-    </Reference>
-    <Reference Include="Wolfje.Plugins.Jist">
-      <HintPath>..\..\Jist\obj\Release\net6.0\Wolfje.Plugins.Jist.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Properties\Resources.Designer.cs">
@@ -43,9 +35,15 @@
     <ProjectReference Include="..\SEconomyPlugin\SEconomyPlugin.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Jint" Version="2.11.58" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
     <PackageReference Include="TShock" Version="5.2.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Wolfje.Plugins.Jist">
+      <HintPath>..\..\Jist\bin\x64\Debug\net6.0\Wolfje.Plugins.Jist.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <Target Name="AfterBuild">
     <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(SolutionDir)\..\ServerInstance4.3\ServerPlugins" />

@@ -35,6 +35,7 @@ namespace Wolfje.Plugins.SEconomy {
 		public SEconomy Parent { get; protected set; }
 
 		protected System.Timers.Timer PayRunTimer { get; set; }
+		protected System.Timers.Timer SquashJournalTimer { get; set; }
 
 		public EventHandlers(SEconomy Parent)
 		{
@@ -44,6 +45,13 @@ namespace Wolfje.Plugins.SEconomy {
 				PayRunTimer.Elapsed += PayRunTimer_Elapsed;
 				PayRunTimer.Start();
 			}
+
+			if (Parent.Configuration.SquashJournalIntervalMinutes > 0)
+			{
+				SquashJournalTimer = new System.Timers.Timer(Parent.Configuration.SquashJournalIntervalMinutes * 60000);
+                SquashJournalTimer.Elapsed += SquashJournalTimer_Elapsed;
+				SquashJournalTimer.Start();
+            }
 
 			TShockAPI.Hooks.PlayerHooks.PlayerPostLogin += PlayerHooks_PlayerPostLogin;
 			Parent.RunningJournal.BankTransferCompleted += BankAccount_BankTransferCompleted;
@@ -291,16 +299,21 @@ namespace Wolfje.Plugins.SEconomy {
 					"being awesome");
 			}
 		}
+        protected void SquashJournalTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            if (Parent.Configuration.SquashJournalIntervalMinutes <= 0)
+                return;
 
-		/// <summary>
-		/// Occurs when an exception happens on a task thread.
-		/// </summary>
-		protected void TaskScheduler_UnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
+			Commands.HandleCommand(TSPlayer.Server, "/bank squashjournal");
+        }
+        /// <summary>
+        /// Occurs when an exception happens on a task thread.
+        /// </summary>
+        protected void TaskScheduler_UnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
 		{
-			if (e.Observed == true) {
+            if (e.Observed == true || !e.Exception.Flatten().ToString().Contains("SEconomy", StringComparison.CurrentCultureIgnoreCase) /*the plugin logs every error from anything otherwise*/) {
 				return;
 			}
-
 			TShock.Log.ConsoleError(SEconomyPlugin.Locale.StringOrDefault(27, "[SEconomy Async] Error occurred on a task thread: ") + e.Exception.Flatten().ToString());
 			e.SetObserved();
 		}
@@ -319,6 +332,8 @@ namespace Wolfje.Plugins.SEconomy {
 				TaskScheduler.UnobservedTaskException -= TaskScheduler_UnobservedTaskException;
 				PayRunTimer.Elapsed -= PayRunTimer_Elapsed;
 				PayRunTimer.Dispose();
+				SquashJournalTimer.Elapsed -= SquashJournalTimer_Elapsed;
+				SquashJournalTimer.Dispose();
 
 				ServerApi.Hooks.GamePostInitialize.Deregister(this.Parent.PluginInstance, GameHooks_PostInitialize);
 				ServerApi.Hooks.ServerJoin.Deregister(this.Parent.PluginInstance, ServerHooks_Join);

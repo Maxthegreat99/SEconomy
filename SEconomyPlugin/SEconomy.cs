@@ -241,7 +241,7 @@ namespace Wolfje.Plugins.SEconomy
 
 		public IBankAccount GetPlayerBankAccount(string playerName)
 		{
-			return GetBankAccount(TShockAPI.TShock.Players.FirstOrDefault(i => i != null && i.Name == playerName));
+			return GetBankAccount(TShockAPI.TShock.Players.FirstOrDefault(i => i != null && i.Name.StartsWith(playerName)));
 		}
 
 		public Task<List<KeyValuePair<TSPlayer, IBankAccount>>> SearchPlayerBankAccountAsync(string playerName)

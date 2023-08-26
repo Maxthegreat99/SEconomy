@@ -236,7 +236,7 @@ namespace Wolfje.Plugins.SEconomy.Journal.XMLJournal {
             if (bankAccounts == null) {
                 return null;
             }
-            return bankAccounts.FirstOrDefault(i => i.UserAccountName == UserAccountName);
+            return bankAccounts.FirstOrDefault(i => i.UserAccountName.StartsWith(UserAccountName));
         }
 
         public IBankAccount GetBankAccount(long BankAccountK)
@@ -350,7 +350,8 @@ namespace Wolfje.Plugins.SEconomy.Journal.XMLJournal {
                         TShock.Log.ConsoleError(SEconomyPlugin.Locale.StringOrDefault(65, "[SEconomy Backup] Cannot copy {0} to {1}, shadow backups will not work!"), path, path + ".bak");
                     }
 
-                    Console.WriteLine(SEconomyPlugin.Locale.StringOrDefault(66, "[SEconomy Journal] Writing to disk"));
+                    if(SEconomyPlugin.Instance.Configuration.ConsoleLogJournalBackup)
+                        Console.WriteLine(SEconomyPlugin.Locale.StringOrDefault(66, "[SEconomy Journal] Writing to disk"));
                     try {
                         using (FileStream fs = new FileStream(path + ".tmp", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None)) {
                             fs.SetLength(0);
@@ -383,8 +384,8 @@ namespace Wolfje.Plugins.SEconomy.Journal.XMLJournal {
                             throw;
                         }
                     }
-
-                    Console.WriteLine(SEconomyPlugin.Locale.StringOrDefault(69, "[SEconomy Journal] Finished backing up."));
+                    if (SEconomyPlugin.Instance.Configuration.ConsoleLogJournalBackup)
+                        Console.WriteLine(SEconomyPlugin.Locale.StringOrDefault(69, "[SEconomy Journal] Finished backing up."));
                 }
             } catch {
                 Console.WriteLine(SEconomyPlugin.Locale.StringOrDefault(70, "[SEconomy Journal] There was an error saving your journal.  Make sure you have backups."));

@@ -332,9 +332,12 @@ namespace Wolfje.Plugins.SEconomy {
 				TaskScheduler.UnobservedTaskException -= TaskScheduler_UnobservedTaskException;
 				PayRunTimer.Elapsed -= PayRunTimer_Elapsed;
 				PayRunTimer.Dispose();
-				SquashJournalTimer.Elapsed -= SquashJournalTimer_Elapsed;
-				SquashJournalTimer.Dispose();
-
+				if (SquashJournalTimer != null)
+                {
+					SquashJournalTimer.Elapsed -= SquashJournalTimer_Elapsed;
+					SquashJournalTimer.Dispose();
+				}
+				
 				ServerApi.Hooks.GamePostInitialize.Deregister(this.Parent.PluginInstance, GameHooks_PostInitialize);
 				ServerApi.Hooks.ServerJoin.Deregister(this.Parent.PluginInstance, ServerHooks_Join);
 				ServerApi.Hooks.ServerLeave.Deregister(this.Parent.PluginInstance, ServerHooks_Leave);

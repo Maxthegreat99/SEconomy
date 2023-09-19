@@ -403,7 +403,7 @@ namespace Wolfje.Plugins.SEconomy.Journal.MySQLJournal
 			}
 
 			TShock.Log.ConsoleInfo("[SEconomy MySQL] Re-syncing online accounts");
-			foreach (TSPlayer player in TShockAPI.TShock.Players) {
+			foreach (TSPlayer player in TShockAPI.TShock.Players.ToList()) {
 				IBankAccount account = null;
 				if (player == null
 				    || player.Name == null

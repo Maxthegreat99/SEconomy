@@ -691,7 +691,7 @@ namespace Wolfje.Plugins.SEconomy.Journal.XMLJournal {
             //abandon the old journal and assign the squashed one
             Console.WriteLine(SEconomyPlugin.Locale.StringOrDefault(82, "re-syncing online accounts."));
 
-            foreach (TSPlayer player in TShockAPI.TShock.Players) {
+            foreach (TSPlayer player in TShockAPI.TShock.Players.ToList()) {
                 IBankAccount account = null;
                 if (player == null
                     || SEconomyPlugin.Instance == null

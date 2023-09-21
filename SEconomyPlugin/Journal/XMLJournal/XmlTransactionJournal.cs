@@ -672,13 +672,16 @@ namespace Wolfje.Plugins.SEconomy.Journal.XMLJournal {
 
             for (int i = 0; i < bankAccountCount; i++) {
                 IBankAccount account = BankAccounts.ElementAtOrDefault(i);
+                
                 if (account == null) {
                     continue;
                 }
 
+                await account.SyncBalanceAsync();
+
                 // Add the squished summary
                 ITransaction squash = new XmlTransaction(account) {
-                    Amount = account.Transactions.Sum(x => x.Amount),
+                    Amount = account.Balance,
                     Flags = BankAccountTransactionFlags.FundsAvailable | BankAccountTransactionFlags.Squashed,
                     TransactionDateUtc = DateTime.UtcNow,
                     Message = "Transaction squash"
@@ -691,11 +694,14 @@ namespace Wolfje.Plugins.SEconomy.Journal.XMLJournal {
             //abandon the old journal and assign the squashed one
             Console.WriteLine(SEconomyPlugin.Locale.StringOrDefault(82, "re-syncing online accounts."));
 
-            foreach (TSPlayer player in TShockAPI.TShock.Players.ToList()) {
+            for(int l = 0; l < TShock.Players.Count();l++) {
+
+                var player = TShock.Players.ElementAtOrDefault(l);
+
                 IBankAccount account = null;
                 if (player == null
                     || SEconomyPlugin.Instance == null
-                    || (account = SEconomyPlugin.Instance.GetBankAccount(player)) == null) {
+                    || (account = SEconomyPlugin.Instance.GetPlayerBankAccount(player.Name)) == null) {
                     return;
                 }
                 Console.WriteLine("re-syncing {0}", player.Name);

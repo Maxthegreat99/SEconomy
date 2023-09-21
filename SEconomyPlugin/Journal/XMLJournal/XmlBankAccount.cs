@@ -92,7 +92,19 @@ namespace Wolfje.Plugins.SEconomy.Journal.XMLJournal {
 
 		public void SyncBalance()
 		{
-			this.Balance = this.Transactions.Sum(i => i.Amount);
+			Money Sum = 0;
+
+			for(int i = 0;i < Transactions.Count; i++)
+			{
+				var t = Transactions.ElementAtOrDefault(i);
+
+				if (t == null)
+					continue;
+
+				Sum += t.Amount;
+			}
+
+			this.Balance = Sum;
 		}
 
 		public System.Threading.Tasks.Task SyncBalanceAsync()

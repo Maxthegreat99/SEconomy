@@ -208,6 +208,7 @@ You do NOT have to restart the server to issue this command.  Just continue as n
 			    && args.Player.Group.HasPermission("seconomy.command.reload") == true) {
 
 				try {
+
 					await Task.Run(async () => {
 						if (Instance != null) {
 							Instance.Dispose();

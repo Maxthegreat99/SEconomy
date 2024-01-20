@@ -8,6 +8,7 @@
 	* bank.savejournal: Has permission to save the journal.
 	* bank.loadjournal: Has permission to load the journal.
 	* bank.squashjournal: Has permission to compress the journal.
+	* bank.xmlsqlite: Has permission to generate an Sqlite journal using and already existing Xml journal
 
 	* seconomy.world.mobgains: Has permissions to gain reward from mob kills.
 	* seconomy.world.bypassdeathpenalty: Has permission to bypass the death penalty

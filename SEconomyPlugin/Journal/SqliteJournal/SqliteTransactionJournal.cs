@@ -101,7 +101,7 @@ namespace Wolfje.Plugins.SEconomy.Journal.SqliteJournal
 							 (user_account_name, world_id, flags, flags2, description)
 						     VALUES (@0, @1, @2, @3, @4);";
 
-			if (string.IsNullOrEmpty(Account.UserAccountName) == true) {
+			if (string.IsNullOrEmpty(Account.UserAccountName) && !Account.IsSystemAccount) {
 				return null;
 			}
 

@@ -25,6 +25,7 @@ using System.Threading;
 using Terraria;
 using TShockAPI;
 using Wolfje.Plugins.SEconomy.Journal;
+using Wolfje.Plugins.SEconomy.Journal.SqliteJournal;
 
 namespace Wolfje.Plugins.SEconomy
 {
@@ -80,6 +81,9 @@ namespace Wolfje.Plugins.SEconomy
 
 				if (player.Group.HasPermission("bank.leaderboard"))
 					player.SendInfoMessage($"* Show the leaderboard for everyone's balance with {TShock.Config.Settings.CommandSpecifier}bank lb <Page>");
+
+				if (player.Group.HasPermission("bank.xmlsqlite"))
+					player.SendInfoMessage($"* Generate an Sqlite journal using and already existing Xml journal with {TShock.Config.Settings.CommandSpecifier}bank xml2sqlite");
 
 				return;
 			}
@@ -145,7 +149,6 @@ namespace Wolfje.Plugins.SEconomy
 					if (player.HasPermission("bank.viewothers") && args.Parameters.Count >= 2)
 						selectedAccount = Parent.RunningJournal.GetBankAccountByName(args.Parameters[1]);
 
-
 					if (selectedAccount == null)
 					{
 						player.SendInfoMessage(GetString(46, "[Bank Balance] Cannot find player or bank account (You might need to login)."));
@@ -163,7 +166,7 @@ namespace Wolfje.Plugins.SEconomy
 				case "savejournal":
 					if (!player.HasPermission("bank.savejournal"))
 					{
-						player.SendErrorMessage(GetString(42, "[SEconomy Reset] You do not have permission to perform this command."));
+						player.SendErrorMessage(GetString(42, "[SEconomy SaveJournal] You do not have permission to perform this command."));
 						return;
 					}
 
@@ -179,7 +182,7 @@ namespace Wolfje.Plugins.SEconomy
 				case "loadjournal":
 					if (!player.HasPermission("bank.loadjournal"))
 					{
-						player.SendErrorMessage(GetString(42, "[SEconomy Reset] You do not have permission to perform this command."));
+						player.SendErrorMessage(GetString(42, "[SEconomy LoadJournal] You do not have permission to perform this command."));
 						return;
 					}
 
@@ -209,7 +212,7 @@ namespace Wolfje.Plugins.SEconomy
 				case "squashjournal":
 					if (!player.HasPermission("bank.squashjournal"))
 					{
-						player.SendErrorMessage(GetString(42, "[SEconomy Reset] You do not have permission to perform this command."));
+						player.SendErrorMessage(GetString(42, "[SEconomy Journal] You do not have permission to perform this command."));
 						return;
 					}
 
@@ -226,7 +229,7 @@ namespace Wolfje.Plugins.SEconomy
 				case "tfr":
 					if (!player.HasPermission("bank.transfer"))
 					{
-						player.SendErrorMessage(GetString(42, "[SEconomy Reset] You do not have permission to perform this command."));
+						player.SendErrorMessage(GetString(42, "[SEconomy Pay] You do not have permission to perform this command."));
 						return;
 					}
 
@@ -331,7 +334,7 @@ namespace Wolfje.Plugins.SEconomy
 				case "lb":
 					if (!player.HasPermission("bank.leaderboard"))
 					{
-						player.SendErrorMessage(GetString(42, "[SEconomy Reset] You do not have permission to perform this command."));
+						player.SendErrorMessage(GetString(42, "[SEconomy Leaderboard] You do not have permission to perform this command."));
 						return;
 					}
 
@@ -419,6 +422,66 @@ namespace Wolfje.Plugins.SEconomy
 						player.SendMessage("You are on the last page.", Color.Yellow);
 
 					return;
+
+				case "xmltosqlite":
+				case "xml2sqlite":
+					
+					if(!player.HasPermission("bank.xmlsqlite"))
+					{
+                        player.SendErrorMessage(GetString(42, "[SEconomy Xml2Sqlite] You do not have permission to perform this command."));
+                        return;
+                    }
+
+                    if (SEconomyPlugin.Instance.Configuration.JournalType != "xml")
+					{
+						player.SendErrorMessage("[SEconomy Xml2Sqlite] you arent using an XML journal");
+						return;
+					}
+
+					try
+					{
+
+						TShock.Log.ConsoleInfo("[SEconomy Journal] Creating SQLite DB from XML journal");
+
+						TShock.Log.ConsoleInfo("[SEconomy Jounral] Squashing journal before convertion");
+
+						await SEconomyPlugin.Instance.RunningJournal.SquashJournalAsync();
+
+						SqliteTransactionJournal journal = new SqliteTransactionJournal(SEconomyPlugin.Instance, Config.SqliteDbPath);
+
+						await journal.LoadJournalAsync();
+
+						var worldAcc = new SqliteBankAccount(journal)
+						{
+							UserAccountName = " ",
+							WorldID = Main.worldID,
+							Flags = Journal.BankAccountFlags.Enabled
+						| Journal.BankAccountFlags.LockedToWorld
+						| Journal.BankAccountFlags.SystemAccount,
+							Description = "World account for world " + Main.worldName
+						};
+
+						journal.AddBankAccount(worldAcc);
+
+						foreach (IBankAccount acc in SEconomyPlugin.Instance.RunningJournal.BankAccounts)
+						{
+							if (acc == null || acc.IsSystemAccount)
+								continue;
+
+							journal.AddBankAccount(acc.UserAccountName, acc.WorldID, acc.Flags, "Xml -> Sqlite");
+
+							worldAcc.TransferTo(journal.GetBankAccountByName(acc.UserAccountName), (acc.Transactions.FirstOrDefault() == null) ? 0 : acc.Transactions.FirstOrDefault().Amount,
+												BankAccountTransferOptions.None, "Transfered from Xml account", "Transfered from Xml account");
+
+						}
+
+						TShock.Log.ConsoleInfo("[SEconomy Journal] Created a new SQLite journal from the XML one, to use your new journal please reload the plugin with the journalType config set to 'sqlite'");
+					}
+					catch (Exception e)
+					{
+						TShock.Log.ConsoleError("[SEconomy Journal] failed to create an SQLite journal from the XML one: " + "\n" + e.Message + "\n " + e.StackTrace);
+					}
+                    return;
 
 				default:
                     player.SendErrorMessage("[Bank] Invalid subcommand.");

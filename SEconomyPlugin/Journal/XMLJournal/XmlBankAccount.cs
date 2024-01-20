@@ -102,9 +102,12 @@ namespace Wolfje.Plugins.SEconomy.Journal.XMLJournal {
 					continue;
 
 				Sum += t.Amount;
+			
+				
 			}
 
-			this.Balance = Sum;
+			this.Balance = new Money(Sum);
+
 		}
 
 		public System.Threading.Tasks.Task SyncBalanceAsync()

@@ -29,34 +29,28 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Sqlite;
 using MySql.Data.MySqlClient;
+using NuGet.Protocol.Plugins;
 using Terraria;
 using TShockAPI;
 using TShockAPI.DB;
 using Wolfje.Plugins.SEconomy.Extensions;
 
-namespace Wolfje.Plugins.SEconomy.Journal.MySQLJournal
+namespace Wolfje.Plugins.SEconomy.Journal.SqliteJournal
 {
-	public class MySQLTransactionJournal : ITransactionJournal {
-		protected string connectionString;
-		protected Configuration.SQLConnectionProperties sqlProperties;
+	public class SqliteTransactionJournal : ITransactionJournal {
 		protected List<IBankAccount> bankAccounts;
-		protected MySqlConnection sqlConnection;
+		protected SqliteConnection sqlConnection;
 		protected SEconomy instance;
+		protected string dbname;
 
-		public MySQLTransactionJournal(SEconomy instance, Configuration.SQLConnectionProperties sqlProperties)
+        public SqliteTransactionJournal(SEconomy instance, string path)
 		{
-			if (string.IsNullOrEmpty(sqlProperties.DbOverrideConnectionString) == false) {
-				this.connectionString = sqlProperties.DbOverrideConnectionString;
-			}
 
 			this.instance = instance;
-			this.sqlProperties = sqlProperties;
-			this.connectionString = string.Format("server={0};user id={1};password={2};connect timeout=60;", 
-				sqlProperties.DbHost,
-				sqlProperties.DbUsername, sqlProperties.DbPassword);
 			this.SEconomyInstance = instance;
-			this.sqlConnection = new MySqlConnection(connectionString);
-		}
+			this.dbname = path;
+			this.sqlConnection = new SqliteConnection($"Data Source={path};");
+        }
 
 		#region ITransactionJournal Members
 
@@ -78,21 +72,21 @@ namespace Wolfje.Plugins.SEconomy.Journal.MySQLJournal
 			get { return null; }
 		}
 
-		public MySqlConnection Connection {
+		public SqliteConnection Connection {
 			get {
-				return new MySqlConnection(connectionString + "database=" + sqlProperties.DbName);
+				return sqlConnection;
 			}
 		}
 
-		public MySqlConnection ConnectionNoCatalog {
+		public SqliteConnection ConnectionNoCatalog {
 			get {
-				return new MySqlConnection(connectionString);
+				return sqlConnection;
 			}
 		}
 
 		public IBankAccount AddBankAccount(string UserAccountName, long WorldID, BankAccountFlags Flags, string iDonoLol)
 		{
-			return AddBankAccount(new MySQLBankAccount(this) {
+			return AddBankAccount(new SqliteBankAccount(this) {
 				UserAccountName = UserAccountName,
 				Description = iDonoLol,
 				WorldID = WorldID,
@@ -103,9 +97,9 @@ namespace Wolfje.Plugins.SEconomy.Journal.MySQLJournal
 		public IBankAccount AddBankAccount(IBankAccount Account)
 		{
 			long id = 0;
-			string query = @"INSERT INTO `bank_account` 
-									(user_account_name, world_id, flags, flags2, description)
-								  VALUES (@0, @1, @2, @3, @4);";
+			string query = @"INSERT INTO bank_account
+							 (user_account_name, world_id, flags, flags2, description)
+						     VALUES (@0, @1, @2, @3, @4);";
 
 			if (string.IsNullOrEmpty(Account.UserAccountName) == true) {
 				return null;
@@ -117,7 +111,7 @@ namespace Wolfje.Plugins.SEconomy.Journal.MySQLJournal
 					return null;
 				}
 			} catch (Exception ex) {
-				TShock.Log.ConsoleError("[SEconomy MySQL] Sql error adding bank account: " + ex.ToString());
+				TShock.Log.ConsoleError("[SEconomy Sqlite] Sql error adding bank account: " + ex.ToString());
 				return null;
 			}
 
@@ -182,16 +176,16 @@ namespace Wolfje.Plugins.SEconomy.Journal.MySQLJournal
 
 			try {
 				if (account == null
-				    || (affected = await Connection.QueryAsync("DELETE FROM `bank_account` WHERE `bank_account_id` = @0", BankAccountK)) == 0) {
+				    || (affected = await Connection.QueryAsync("DELETE FROM bank_account WHERE bank_account_id = @0", BankAccountK)) == 0) {
 					return;
 				}
 			} catch (Exception ex) {
-				TShock.Log.ConsoleError("[SEconomy MySQL] DeleteBankAccount failed: {0}",
+				TShock.Log.ConsoleError("[SEconomy Sqlite] DeleteBankAccount failed: {0}",
 					ex.Message);
 			}
 
 			if (affected != 1) {
-				TShock.Log.ConsoleError("[SEconomy MySQL] DeleteBankAccount affected {0} rows where it should have only been 1.",
+				TShock.Log.ConsoleError("[SEconomy Sqlite] DeleteBankAccount affected {0} rows where it should have only been 1.",
 					affected);
 				return;
 			}
@@ -211,53 +205,67 @@ namespace Wolfje.Plugins.SEconomy.Journal.MySQLJournal
 			await Task.FromResult<object>(null); //stub
 		}
 
-		/// <summary>
-		/// Queries the destination MySQL server to determine if there 
-		/// is a database by the name matching sqlProperties.DbName set in the
-		/// SEconomy configuration file.
-		/// </summary>
-		/// <returns>True if the database exists, false otherwise.</returns>
 		protected bool DatabaseExists()
 		{
-			long schemaCount = default(long);
-			string query = @"select count(`schema_name`) 
-							from `information_schema`.`schemata`
-							where `schema_name` = @0";
-
-			if ((schemaCount = ConnectionNoCatalog.QueryScalar<long>(query, sqlProperties.DbName)) > 0) {
+			if (File.Exists(dbname)) {
 				return true;
 			}
 
 			return false;
 		}
 
-		/// <summary>
-		/// Creates an seconomy database in MySQL based on the create database SQL
-		/// embedded resources.
-		/// </summary>
 		protected void CreateDatabase()
 		{
-			Regex createDbRegex = new Regex(@"create\$(\d+)\.sql");
-			Dictionary<int, string> scriptList = new Dictionary<int, string>();
-			Match nameMatch = null;
-			int scriptIndex = default(int);
+			try
+			{
+				if(Connection == null)
+				{
+					this.sqlConnection = new SqliteConnection($"Data Source={Config.SqliteDbPath};");
+                }
 
-			foreach (string resourceName in Assembly.GetExecutingAssembly().GetManifestResourceNames()) {
-				if ((nameMatch = createDbRegex.Match(resourceName)).Success == false
-				    || int.TryParse(nameMatch.Groups[1].Value, out scriptIndex) == false) {
-					continue;
-				}
+                sqlConnection.Open();
 
-				if (scriptList.ContainsKey(scriptIndex) == false) {
-					using (StreamReader sr = new StreamReader(Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName))) {
-						scriptList[scriptIndex] = sr.ReadToEnd();
-					}
+                using (SqliteCommand command = new SqliteCommand("PRAGMA foreign_keys = ON;", Connection))
+                {
+                    command.ExecuteNonQuery();
+                }
+
+                SqlTableCreator creator = new(sqlConnection, new SqliteQueryCreator());
+
+				creator.EnsureTableStructure(new SqlTable("bank_account",
+					new SqlColumn("bank_account_id", MySqlDbType.Int32) { Primary = true, AutoIncrement = true},
+					new SqlColumn("user_account_name", MySqlDbType.Text) { NotNull = true, Length = 64 },
+					new SqlColumn("world_id", MySqlDbType.Int64) { NotNull = true},
+					new SqlColumn("flags", MySqlDbType.Int32) { NotNull = true},
+					new SqlColumn("flags2", MySqlDbType.Int32) { NotNull = true},
+					new SqlColumn("description", MySqlDbType.Text) { NotNull = true, Length = 512},
+					new SqlColumn("old_bank_account_k", MySqlDbType.Int64) {DefaultValue = null }));
+
+				using (SqliteCommand command = new SqliteCommand())
+				{
+					command.Connection = sqlConnection;
+					command.CommandText = @"
+                    CREATE TABLE IF NOT EXISTS bank_account_transaction (
+                        bank_account_transaction_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        bank_account_transaction_fk INTEGER DEFAULT NULL,
+                        bank_account_fk INTEGER NOT NULL,
+                        amount INTEGER NOT NULL,
+                        message TEXT DEFAULT NULL,
+                        flags INTEGER NOT NULL,
+                        flags2 INTEGER NOT NULL,
+                        transaction_date_utc DATETIME NOT NULL,
+                        old_bank_account_transaction_k INTEGER DEFAULT NULL,
+						FOREIGN KEY (bank_account_fk) REFERENCES bank_account (bank_account_id) ON DELETE CASCADE ON UPDATE NO ACTION
+                    );
+					";
+
+					command.ExecuteNonQuery();
 				}
+				sqlConnection.Close();
+			
 			}
-
-			foreach (string scriptToRun in scriptList.OrderBy(i => i.Key).Select(i=>i.Value)) {
-				string sql = scriptToRun.Replace("$CATALOG", sqlProperties.DbName);
-				ConnectionNoCatalog.Query(sql);
+			catch(Exception e){
+				Console.WriteLine(e.Message + "\n" + e.StackTrace);
 			}
 		}
 
@@ -265,34 +273,9 @@ namespace Wolfje.Plugins.SEconomy.Journal.MySQLJournal
 		{
 			string readKey = null;
 
-			ConsoleEx.WriteLineColour(ConsoleColor.Cyan, " Using MySQL journal - mysql://{0}@{1}/{2}\r\n", 
-				sqlProperties.DbUsername, sqlProperties.DbHost, sqlProperties.DbName);
-
-			while (true) {
-				if (DatabaseExists() == true) {
-					break;
-				}
-
-				TShock.Log.ConsoleInfo("The database {0} on MySQL server {1} does not exist or cannot be accessed.", 
-					sqlProperties.DbName, 
-					sqlProperties.DbHost);
-				TShock.Log.ConsoleInfo("If the schema does exist, make sure the SQL user has access to it.");
-
-				Console.Write("New database {0} on MySQL Server {1}, retry or cancel? (n/r/c) ", 
-					sqlProperties.DbName, 
-					sqlProperties.DbHost);
-
-				readKey = Console.ReadLine();
-				if (readKey.Equals("n", StringComparison.CurrentCultureIgnoreCase)) {
-					try {
-						CreateSchema();
-						break;	
-					} catch {
-					}
-				} else if (readKey.Equals("c", StringComparison.CurrentCultureIgnoreCase)) {
-					return false;
-				}
-			}
+			ConsoleEx.WriteLineColour(ConsoleColor.Cyan, " Using Sqlite journal - {0}\r\n",
+									  dbname);
+			CreateDatabase();
 
 			LoadBankAccounts();
 
@@ -305,8 +288,6 @@ namespace Wolfje.Plugins.SEconomy.Journal.MySQLJournal
 				CreateDatabase();
 			} catch (Exception ex) {
 				TShock.Log.ConsoleError(" Your SEconomy database does not exist and it couldn't be created.");
-				TShock.Log.ConsoleError(" Check your SQL server is on, and the credentials you supplied have");
-				TShock.Log.ConsoleError(" permissions to CREATE DATABASE.");
 				TShock.Log.ConsoleError(" The error was: {0}", ex.Message);
 				throw;
 			}
@@ -332,15 +313,15 @@ namespace Wolfje.Plugins.SEconomy.Journal.MySQLJournal
 				}
 
 				bankAccounts = new List<IBankAccount>();
-				bankAccountCount = Connection.QueryScalar<long>("select count(*) from `bank_account`;");
-				tranCount = Connection.QueryScalar<long>("select count(*) from `bank_account_transaction`;");
+				bankAccountCount = Connection.QueryScalar<long>("SELECT COUNT(*) FROM bank_account;");
+                tranCount = Connection.QueryScalar<long>("SELECT COUNT(*) FROM bank_account_transaction;");
 
-                QueryResult bankAccountResult = Connection.QueryReader(@"select bank_account.*, sum(bank_account_transaction.amount) as balance
-                                                                         from bank_account 
-                                                                             inner join bank_account_transaction on bank_account_transaction.bank_account_fk = bank_account.bank_account_id 
-                                                                         group by bank_account.bank_account_id;");
+                QueryResult bankAccountResult = Connection.QueryReader(@"SELECT bank_account.*, SUM(bank_account_transaction.amount) AS balance
+																		 FROM bank_account
+																		 INNER JOIN bank_account_transaction ON bank_account_transaction.bank_account_fk = bank_account.bank_account_id
+																		 GROUP BY bank_account.bank_account_id;");
 
-				Action<int> percentCompleteFunc = i => {
+                Action<int> percentCompleteFunc = i => {
 					percentComplete = (double)i / (double)bankAccountCount * 100;
 
 					if (oldPercent != (int)percentComplete) {
@@ -353,8 +334,8 @@ namespace Wolfje.Plugins.SEconomy.Journal.MySQLJournal
 				};
 
 				foreach (var acc in bankAccountResult.AsEnumerable()) {
-					MySQLBankAccount sqlAccount = null;
-					sqlAccount = new MySQLBankAccount(this) {
+					SqliteBankAccount sqlAccount = null;
+					sqlAccount = new SqliteBankAccount(this) {
 						BankAccountK = acc.Get<long>("bank_account_id"),
 						Description = acc.Get<string>("description"),
 						Flags = (BankAccountFlags)Enum.Parse(typeof(BankAccountFlags), acc.Get<int>("flags").ToString()),
@@ -382,7 +363,7 @@ namespace Wolfje.Plugins.SEconomy.Journal.MySQLJournal
 				Console.WriteLine("\r\n");
 				ConsoleEx.WriteLineColour(ConsoleColor.Cyan, "[SEconomy Journal Clean] {0} accounts, {1} transactions", BankAccounts.Count(), tranCount);
 			} catch (Exception ex) {
-				TShock.Log.ConsoleError("[SEconomy MySQL] Db error in LoadJournal: " + ex.Message);
+				TShock.Log.ConsoleError("[SEconomy Sqlite] Db error in LoadJournal: " + ex.Message);
 				throw;
 			}
 		}
@@ -399,12 +380,23 @@ namespace Wolfje.Plugins.SEconomy.Journal.MySQLJournal
 
 		public async Task SquashJournalAsync()
 		{
-			TShock.Log.ConsoleInfo(	"[SEconomy MySQL] Squashing accounts.");
-			if (await Connection.QueryAsync("CALL seconomy_squash();") < 0) {
-				TShock.Log.ConsoleError("[SEconomy MySQL] Squashing failed.");
+			TShock.Log.ConsoleInfo(	"[SEconomy Sqlite] Squashing accounts.");
+			if (await Connection.QueryAsync(@"CREATE TEMPORARY TABLE IF NOT EXISTS seconomy_squash_temp AS
+												SELECT bank_account_id, COALESCE(SUM(amount), 0) AS total_amount
+												FROM bank_account
+												LEFT JOIN bank_account_transaction ON bank_account_id = bank_account_fk
+												GROUP BY bank_account_id;
+
+											  DELETE FROM bank_account_transaction;
+
+											  INSERT INTO bank_account_transaction (bank_account_fk, amount, message, flags, flags2, transaction_date_utc)
+												SELECT bank_account_id, total_amount, 'Transaction Squash', 3, 0, CURRENT_TIMESTAMP
+												FROM seconomy_squash_temp;") < 0) 
+			{
+				TShock.Log.ConsoleError("[SEconomy Sqlite] Squashing failed.");
 			}
 
-			TShock.Log.ConsoleInfo("[SEconomy MySQL] Re-syncing online accounts");
+			TShock.Log.ConsoleInfo("[SEconomy Sqlite] Re-syncing online accounts");
 			for(int i = 0; i < TShock.Players.Count(); i++) {
 
 				var player = TShock.Players.ElementAtOrDefault(i);
@@ -419,7 +411,7 @@ namespace Wolfje.Plugins.SEconomy.Journal.MySQLJournal
 				await account.SyncBalanceAsync();
 			}
 
-			TShock.Log.ConsoleInfo("[SEconomy MySQL] Squash complete.");
+			TShock.Log.ConsoleInfo("[SEconomy Sqlite] Squash complete.");
 		}
 
 		bool TransferMaySucceed(IBankAccount FromAccount, IBankAccount ToAccount, Money MoneyNeeded, Journal.BankAccountTransferOptions Options)
@@ -433,18 +425,18 @@ namespace Wolfje.Plugins.SEconomy.Journal.MySQLJournal
 			|| (FromAccount.Balance >= MoneyNeeded && MoneyNeeded > 0));
 		}
 
-		ITransaction BeginSourceTransaction(MySql.Data.MySqlClient.MySqlTransaction SQLTransaction, long BankAccountK, Money Amount, string Message)
+		ITransaction BeginSourceTransaction(Microsoft.Data.Sqlite.SqliteTransaction SQLTransaction, long BankAccountK, Money Amount, string Message)
 		{
-			MySQLTransaction trans = null;
+			SqliteTransaction trans = null;
 			long idenitity = -1;
-			string query = @"insert into `bank_account_transaction` 
-								(bank_account_fk, amount, message, flags, flags2, transaction_date_utc)
-							values (@0, @1, @2, @3, @4, @5);";
-			IBankAccount account = null;
+            string query = @"INSERT INTO bank_account_transaction 
+							(bank_account_fk, amount, message, flags, flags2, transaction_date_utc)
+							VALUES (@0, @1, @2, @3, @4, @5);";
+            IBankAccount account = null;
 			if ((account = GetBankAccount(BankAccountK)) == null) {
 				return null;
 			}
-			trans = new MySQLTransaction(account) {
+			trans = new SqliteTransaction(account) {
 				Amount = (-1) * Amount,
 				BankAccountFK = account.BankAccountK,
 				Flags = BankAccountTransactionFlags.FundsAvailable,
@@ -456,7 +448,7 @@ namespace Wolfje.Plugins.SEconomy.Journal.MySQLJournal
 				SQLTransaction.Connection.QueryIdentityTransaction(SQLTransaction, query, out idenitity, trans.BankAccountFK, 
 					(long)trans.Amount, trans.Message, (int)BankAccountTransactionFlags.FundsAvailable, 0, DateTime.UtcNow);
 			} catch (Exception ex) {
-				TShock.Log.ConsoleError("[SEconomy MySQL] Database error in BeginSourceTransaction: " + ex.Message);
+				TShock.Log.ConsoleError("[SEconomy Sqlite] Database error in BeginSourceTransaction: " + ex.Message);
 				return null;
 			}
 
@@ -465,19 +457,19 @@ namespace Wolfje.Plugins.SEconomy.Journal.MySQLJournal
 			return trans;
 		}
 
-		ITransaction FinishEndTransaction(MySql.Data.MySqlClient.MySqlTransaction SQLTransaction, IBankAccount ToAccount, Money Amount, string Message)
+		ITransaction FinishEndTransaction(Microsoft.Data.Sqlite.SqliteTransaction SqliteTransaction, IBankAccount ToAccount, Money Amount, string Message)
 		{
-			MySQLTransaction trans = null;
+            SqliteTransaction trans = null;
 			IBankAccount account = null;
 			long identity = -1;
-			string query = @"insert into `bank_account_transaction` 
-								(bank_account_fk, amount, message, flags, flags2, transaction_date_utc)
-							values (@0, @1, @2, @3, @4, @5);";
-			if ((account = GetBankAccount(ToAccount.BankAccountK)) == null) {
+            string query = @"INSERT INTO bank_account_transaction 
+							 (bank_account_fk, amount, message, flags, flags2, transaction_date_utc)
+							 VALUES (@0, @1, @2, @3, @4, @5);";
+            if ((account = GetBankAccount(ToAccount.BankAccountK)) == null) {
 				return null;
 			}
 
-			trans = new MySQLTransaction(account) {
+			trans = new SqliteTransaction(account) {
 				Amount = Amount,
 				BankAccountFK = account.BankAccountK,
 				Flags = BankAccountTransactionFlags.FundsAvailable,
@@ -486,10 +478,10 @@ namespace Wolfje.Plugins.SEconomy.Journal.MySQLJournal
 			};
 
 			try {
-				SQLTransaction.Connection.QueryIdentityTransaction(SQLTransaction, query, out identity, trans.BankAccountFK, (long)trans.Amount, trans.Message,
+				SqliteTransaction.Connection.QueryIdentityTransaction(SqliteTransaction, query, out identity, trans.BankAccountFK, (long)trans.Amount, trans.Message,
 					(int)BankAccountTransactionFlags.FundsAvailable, 0, DateTime.UtcNow);
 			} catch (Exception ex) {
-				TShock.Log.ConsoleError("[SEconomy MySQL] Database error in FinishEndTransaction: " + ex.Message);
+				TShock.Log.ConsoleError("[SEconomy Sqlite] Database error in FinishEndTransaction: " + ex.Message);
 				return null;
 			}
 
@@ -497,23 +489,23 @@ namespace Wolfje.Plugins.SEconomy.Journal.MySQLJournal
 			return trans;
 		}
 
-		public void BindTransactions(MySql.Data.MySqlClient.MySqlTransaction SQLTransaction, long SourceBankTransactionK, long DestBankTransactionK)
+		public void BindTransactions(Microsoft.Data.Sqlite.SqliteTransaction SQLTransaction, long SourceBankTransactionK, long DestBankTransactionK)
 		{
 			int updated = -1;
-			string query = @"update `bank_account_transaction` 
-							 set `bank_account_transaction_fk` = @0
-							 where `bank_account_transaction_id` = @1";
+            string query = @"UPDATE bank_account_transaction 
+							 SET bank_account_transaction_fk = @0
+							 WHERE bank_account_transaction_id = @1;";
 
-			try {
+            try {
 				if ((updated = SQLTransaction.Connection.QueryTransaction(SQLTransaction, query, SourceBankTransactionK, DestBankTransactionK)) != 1) {
-					TShock.Log.ConsoleError("[SEconomy MySQL]  Error in BindTransactions: updated row count was " + updated);
+					TShock.Log.ConsoleError("[SEconomy Sqlite]  Error in BindTransactions: updated row count was " + updated);
 				}
 
 				if ((updated = SQLTransaction.Connection.QueryTransaction(SQLTransaction, query, DestBankTransactionK, SourceBankTransactionK)) != 1) {
-					TShock.Log.ConsoleError("[SEconomy MySQL]  Error in BindTransactions: updated row count was " + updated);
+					TShock.Log.ConsoleError("[SEconomy Sqlite]  Error in BindTransactions: updated row count was " + updated);
 				}
 			} catch (Exception ex) {
-				TShock.Log.ConsoleError("[SEconomy MySQL] Database error in BindTransactions: " + ex.Message);
+				TShock.Log.ConsoleError("[SEconomy Sqlite] Database error in BindTransactions: " + ex.Message);
 				return;
 			}
 		}
@@ -523,16 +515,16 @@ namespace Wolfje.Plugins.SEconomy.Journal.MySQLJournal
 			long accountCount = -1;
 			PendingTransactionEventArgs pendingTransaction = new PendingTransactionEventArgs(FromAccount, ToAccount, Amount, Options, TransactionMessage, JournalMessage);
 			ITransaction sourceTran, destTran;
-			MySqlConnection conn = null;
-            MySql.Data.MySqlClient.MySqlTransaction sqlTrans = null;
+			SqliteConnection conn = null;
+            Microsoft.Data.Sqlite.SqliteTransaction sqlTrans = null;
 			BankTransferEventArgs args = new BankTransferEventArgs() {
 				TransferSucceeded = false
 			};
-			string accountVerifyQuery = @"select count(*)
-										  from `bank_account`
-										  where	`bank_account_id` = @0;";
+            string accountVerifyQuery = @"SELECT COUNT(*)
+										  FROM bank_account
+										  WHERE bank_account_id = @0;";
 
-			Stopwatch sw = new Stopwatch();
+            Stopwatch sw = new Stopwatch();
 			if (SEconomyInstance.Configuration.EnableProfiler == true) {
 				sw.Start();
 			}
@@ -542,20 +534,20 @@ namespace Wolfje.Plugins.SEconomy.Journal.MySQLJournal
 			}
 
 			if ((conn = Connection) == null) {
-				TShock.Log.ConsoleError("[SEconomy MySQL] Cannot connect to the SQL server");
+				TShock.Log.ConsoleError("[SEconomy Sqlite] Cannot connect to the SQL server");
 				return args;
 			}
 
 			conn.Open();
 
 			if ((accountCount = Connection.QueryScalar<long>(accountVerifyQuery, FromAccount.BankAccountK)) != 1) {
-				TShock.Log.ConsoleError("[SEconomy MySQL] Source account " + FromAccount.BankAccountK + " does not exist.");
+				TShock.Log.ConsoleError("[SEconomy Sqlite] Source account " + FromAccount.BankAccountK + " does not exist.");
 				conn.Dispose();
 				return args;
 			}
 
 			if ((accountCount = Connection.QueryScalar<long>(accountVerifyQuery, ToAccount.BankAccountK)) != 1) {
-				TShock.Log.ConsoleError("[SEconomy MySQL] Source account " + FromAccount.BankAccountK + " does not exist.");
+				TShock.Log.ConsoleError("[SEconomy Sqlite] Source account " + FromAccount.BankAccountK + " does not exist.");
 				conn.Dispose();
 				return args;
 			}
@@ -589,14 +581,14 @@ namespace Wolfje.Plugins.SEconomy.Journal.MySQLJournal
 				sqlTrans.Commit();
 			} catch (Exception ex) {
 				if (conn != null
-				    && conn.State == ConnectionState.Open) {
+				    && conn.State == System.Data.ConnectionState.Open) {
 					try {
 						sqlTrans.Rollback();
 					} catch {
-						TShock.Log.ConsoleError("[SEconomy MySQL] Error in rollback:" + ex.ToString());
+						TShock.Log.ConsoleError("[SEconomy Sqlite] Error in rollback:" + ex.ToString());
 					}
 				}
-				TShock.Log.ConsoleError("[SEconomy MySQL] Database error in transfer:" + ex.ToString());
+				TShock.Log.ConsoleError("[SEconomy Sqlite] Database error in transfer:" + ex.ToString());
 				args.Exception = ex;
 				return args;
 			} finally {
@@ -615,7 +607,7 @@ namespace Wolfje.Plugins.SEconomy.Journal.MySQLJournal
 
 			if (SEconomyInstance.Configuration.EnableProfiler == true) {
 				sw.Stop();
-				TShock.Log.ConsoleInfo("[SEconomy MySQL] Transfer took {0} ms", sw.ElapsedMilliseconds);
+				TShock.Log.ConsoleInfo("[SEconomy Sqlite] Transfer took {0} ms", sw.ElapsedMilliseconds);
 			}
 
 			return args;

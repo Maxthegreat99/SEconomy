@@ -350,15 +350,16 @@ namespace Wolfje.Plugins.SEconomy.Journal.XMLJournal {
                         TShock.Log.ConsoleError(SEconomyPlugin.Locale.StringOrDefault(65, "[SEconomy Backup] Cannot copy {0} to {1}, shadow backups will not work!"), path, path + ".bak");
                     }
 
-                    if(SEconomyPlugin.Instance.Configuration.ConsoleLogJournalBackup)
-                        Console.WriteLine(SEconomyPlugin.Locale.StringOrDefault(66, "[SEconomy Journal] Writing to disk"));
+                    if(SEconomyPlugin.Instance.Configuration.ConsoleLogJournalBackup && SEconomyPlugin.Instance.PostInitialized)
+                        Console.WriteLine("\r" + SEconomyPlugin.Locale.StringOrDefault(66, "[SEconomy Journal] Writing to disk"));
+
                     try {
                         using (FileStream fs = new FileStream(path + ".tmp", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None)) {
                             fs.SetLength(0);
 
                             using (GZipStream gzCompressor = new GZipStream(fs, CompressionMode.Compress)) {
                                 using (XmlTextWriter xmlWriter = new XmlTextWriter(gzCompressor, System.Text.Encoding.UTF8)) {
-                                    xmlWriter.Formatting = Formatting.None;
+                                    xmlWriter.Formatting = Formatting.Indented;
                                     journalXml.WriteTo(xmlWriter);
                                 }
                             }
@@ -384,7 +385,7 @@ namespace Wolfje.Plugins.SEconomy.Journal.XMLJournal {
                             throw;
                         }
                     }
-                    if (SEconomyPlugin.Instance.Configuration.ConsoleLogJournalBackup)
+                    if (SEconomyPlugin.Instance.Configuration.ConsoleLogJournalBackup && SEconomyPlugin.Instance.PostInitialized)
                         Console.WriteLine(SEconomyPlugin.Locale.StringOrDefault(69, "[SEconomy Journal] Finished backing up."));
                 }
             } catch {
@@ -665,7 +666,7 @@ namespace Wolfje.Plugins.SEconomy.Journal.XMLJournal {
 
             Console.WriteLine(SEconomyPlugin.Locale.StringOrDefault(81, "[SEconomy XML] Beginning Squash"));
 
-            if (SEconomyInstance.RunningJournal.BackupsEnabled == true) {
+            if (SEconomyInstance.RunningJournal.BackupsEnabled ) {
                 SEconomyInstance.RunningJournal.BackupsEnabled = false;
                 responsibleForTurningBackupsBackOn = true;
             }
@@ -673,9 +674,9 @@ namespace Wolfje.Plugins.SEconomy.Journal.XMLJournal {
             for (int i = 0; i < bankAccountCount; i++) {
                 IBankAccount account = BankAccounts.ElementAtOrDefault(i);
                 
-                if (account == null) {
+                if (account == null) 
                     continue;
-                }
+                
 
                 await account.SyncBalanceAsync();
 
@@ -689,6 +690,8 @@ namespace Wolfje.Plugins.SEconomy.Journal.XMLJournal {
 
                 account.Transactions.Clear();
                 account.AddTransaction(squash);
+
+                
             }
 
             //abandon the old journal and assign the squashed one
@@ -702,7 +705,7 @@ namespace Wolfje.Plugins.SEconomy.Journal.XMLJournal {
                 if (player == null
                     || SEconomyPlugin.Instance == null
                     || (account = SEconomyPlugin.Instance.GetPlayerBankAccount(player.Name)) == null) {
-                    return;
+                    continue;
                 }
                 Console.WriteLine("re-syncing {0}", player.Name);
                 await account.SyncBalanceAsync();

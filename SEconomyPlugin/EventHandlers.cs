@@ -131,59 +131,6 @@ namespace Wolfje.Plugins.SEconomy {
 
 			return;
 
-			/*if ((e.TransferOptions & Journal.BankAccountTransferOptions.IsPlayerToPlayerTransfer) == Journal.BankAccountTransferOptions.IsPlayerToPlayerTransfer) {
-				if ((e.TransferOptions & Journal.BankAccountTransferOptions.AnnounceToReceiver) == Journal.BankAccountTransferOptions.AnnounceToReceiver && e.ReceiverAccount != null && receiver != null) {
-					//string message = string.Format(SEconomyPlugin.Locale.StringOrDefault(16, "You {3} {0} from {1}. Transaction # {2}"), e.Amount.ToLongString(), 
-					//	sender != null ? sender.Name : SEconomyPlugin.Locale.StringOrDefault(17, "The server"), e.TransactionID, 
-					//	e.Amount > 0 ? SEconomyPlugin.Locale.StringOrDefault(18, "received") : SEconomyPlugin.Locale.StringOrDefault(19, "sent"));
-
-					//receiver.SendData(PacketTypes.Status, message, 50);
-
-				//	receiver.SendMessage(), Color.Orange);
-				}
-				if ((e.TransferOptions & Journal.BankAccountTransferOptions.AnnounceToSender) == Journal.BankAccountTransferOptions.AnnounceToSender && sender != null) {
-					sender.SendMessage(string.Format(SEconomyPlugin.Locale.StringOrDefault(16, "You {3} {0} from {1}. Transaction # {2}"), e.Amount.ToLongString(), receiver.Name, e.TransactionID,
-						e.Amount > 0 ? SEconomyPlugin.Locale.StringOrDefault(19, "sent") : SEconomyPlugin.Locale.StringOrDefault(18, "received")), Color.Orange);
-				}
-
-				//Everything else, including world to player, and player to world.
-			} else {
-				if ((e.TransferOptions & Journal.BankAccountTransferOptions.IsPayment) == Journal.BankAccountTransferOptions.IsPayment) {
-					if ((e.TransferOptions & Journal.BankAccountTransferOptions.AnnounceToSender) == Journal.BankAccountTransferOptions.AnnounceToSender && sender != null) {
-						sender.SendMessage(string.Format(SEconomyPlugin.Locale.StringOrDefault(20, "You {0} {1}{2}"), 
-							e.Amount > 0 ? SEconomyPlugin.Locale.StringOrDefault(21, "paid") : SEconomyPlugin.Locale.StringOrDefault(22, "got paid"), e.Amount.ToLongString(),
-							!string.IsNullOrEmpty(e.TransactionMessage) ? SEconomyPlugin.Locale.StringOrDefault(25, " for ") + e.TransactionMessage : ""), Color.Orange);
-					}
-
-					if ((e.TransferOptions & Journal.BankAccountTransferOptions.AnnounceToReceiver) == Journal.BankAccountTransferOptions.AnnounceToReceiver && receiver != null) {
-						receiver.SendMessage(string.Format(SEconomyPlugin.Locale.StringOrDefault(20, "You {0} {1}{2}"), e.Amount > 0 ? SEconomyPlugin.Locale.StringOrDefault(22, "got paid") 
-							: SEconomyPlugin.Locale.StringOrDefault(22, "paid"), e.Amount.ToLongString(),
-							!string.IsNullOrEmpty(e.TransactionMessage) ? SEconomyPlugin.Locale.StringOrDefault(25, " for ") + e.TransactionMessage : ""), Color.Orange);
-					}
-				} else {
-					if ((e.TransferOptions & Journal.BankAccountTransferOptions.AnnounceToSender) == Journal.BankAccountTransferOptions.AnnounceToSender && sender != null) {
-						sender.SendMessage(string.Format(SEconomyPlugin.Locale.StringOrDefault(20, "You {0} {1}{2}"), e.Amount > 0 ? SEconomyPlugin.Locale.StringOrDefault(23, "lost") 
-							: SEconomyPlugin.Locale.StringOrDefault(24, "gained"), e.Amount.ToLongString(), 
-							!string.IsNullOrEmpty(e.TransactionMessage) ? SEconomyPlugin.Locale.StringOrDefault(25, " for ") + e.TransactionMessage : ""), Color.Orange);
-					}
-
-					if ((e.TransferOptions & Journal.BankAccountTransferOptions.AnnounceToReceiver) == Journal.BankAccountTransferOptions.AnnounceToReceiver && receiver != null) {
-						//string message = string.Format(SEconomyPlugin.Locale.StringOrDefault(20, "You {0} {1}{2}"), e.Amount > 0 ? SEconomyPlugin.Locale.StringOrDefault(24, "gained")
-						//	: SEconomyPlugin.Locale.StringOrDefault(23, "lost"), e.Amount.ToLongString(), 
-						//	!string.IsNullOrEmpty(e.TransactionMessage) ? SEconomyPlugin.Locale.StringOrDefault(25, " for ") + e.TransactionMessage : "");
-
-
-						//string message = string.Format("SEconomy\r\n{0}{1}\r\n{2}\r\nBal: {3}{4}", 
-						//	(e.Amount > 0 ? "+" : "-"), e.Amount.ToString(), 
-						//	e.TransactionMessage, 
-						//	e.ReceiverAccount.Balance.ToString(), 
-						//	RepeatLineBreaks(50));
-
-						//receiver.SendData(PacketTypes.Status, message, 0);
-	//				receiver.SendMessage(), Color.Orange);
-					}
-				}
-			}*/
 		}
 
 		protected string RepeatLineBreaks(int number)
@@ -246,6 +193,7 @@ namespace Wolfje.Plugins.SEconomy {
 		protected async void GameHooks_PostInitialize(EventArgs e)
 		{
 			await Parent.BindToWorldAsync();
+			SEconomyPlugin.Instance.PostInitialized = true;
 		}
 
 		protected async void PlayerHooks_PlayerPostLogin(TShockAPI.Hooks.PlayerPostLoginEventArgs e)
@@ -301,7 +249,8 @@ namespace Wolfje.Plugins.SEconomy {
 		}
         protected void SquashJournalTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            if (Parent.Configuration.SquashJournalIntervalMinutes <= 0)
+            if (Parent.Configuration.SquashJournalIntervalMinutes <= 0
+				|| !SEconomyPlugin.Instance.PostInitialized)
                 return;
 
 			Commands.HandleCommand(TSPlayer.Server, "/bank squashjournal");
@@ -311,9 +260,11 @@ namespace Wolfje.Plugins.SEconomy {
         /// </summary>
         protected void TaskScheduler_UnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
 		{
-            if (e.Observed == true || !e.Exception.Flatten().ToString().Contains("SEconomy", StringComparison.CurrentCultureIgnoreCase) /*the plugin logs every error from anything otherwise*/) {
+            if (e.Observed == true || !e.Exception.Flatten().ToString().Contains("SEconomy", StringComparison.CurrentCultureIgnoreCase) 
+				|| !e.Exception.Flatten().ToString().Contains("Wolfje", StringComparison.CurrentCultureIgnoreCase) /*the plugin logs every error from anything otherwise*/) {
 				return;
 			}
+
 			TShock.Log.ConsoleError(SEconomyPlugin.Locale.StringOrDefault(27, "[SEconomy Async] Error occurred on a task thread: ") + e.Exception.Flatten().ToString());
 			e.SetObserved();
 		}

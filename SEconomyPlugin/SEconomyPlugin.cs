@@ -80,7 +80,7 @@ You do NOT have to restart the server to issue this command.  Just continue as n
 		/// <summary>
 		/// The loaded instance of SEconomy.  This field can be null.
 		/// </summary>
-		public static SEconomy Instance { get; set; }
+		public static SEconomy Instance { get; set; } 
 
 		public SEconomyPlugin(Main Game) : base(Game)
 		{

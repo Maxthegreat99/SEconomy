@@ -52,7 +52,9 @@ namespace Wolfje.Plugins.SEconomy
 		}
 
 		public string cmdStarter = TShock.Config.Settings.CommandSpecifier;
-		
+
+		public bool PostInitialized = false;
+
 		#region "Loading and setup"
 
 		public bool IsNet45OrNewer()
@@ -103,6 +105,12 @@ namespace Wolfje.Plugins.SEconomy
 				sqlJournal.JournalLoadingPercentChanged += (sender, args) => ConsoleEx.WriteBar(args);
 
 				journal = sqlJournal;
+			} else if(Configuration.JournalType.Equals("sqlite", StringComparison.InvariantCultureIgnoreCase) == true)
+			{
+                Wolfje.Plugins.SEconomy.Journal.SqliteJournal.SqliteTransactionJournal sqliteJournal = new Journal.SqliteJournal.SqliteTransactionJournal(this, Config.SqliteDbPath);
+				sqliteJournal.JournalLoadingPercentChanged += (sender, args) => ConsoleEx.WriteBar(args);
+
+				journal = sqliteJournal;
 			}
 
 			this.RunningJournal = journal;

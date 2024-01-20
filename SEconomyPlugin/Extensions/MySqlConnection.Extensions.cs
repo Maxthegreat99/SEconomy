@@ -16,6 +16,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+using Microsoft.Data.Sqlite;
+using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -30,7 +32,7 @@ using TShockAPI.DB;
 using TShockAPI.Extensions;
 
 namespace Wolfje.Plugins.SEconomy.Extensions {
-	public static class MySqlConnectionExtensions {
+	public static class SqlConnectionExtensions {
 
 		public static async Task<int> QueryAsync(this IDbConnection db, string query, params object[] args)
 		{
@@ -169,46 +171,133 @@ namespace Wolfje.Plugins.SEconomy.Extensions {
 			return affected;
 		}
 
-		public static int QueryIdentityTransaction(this MySql.Data.MySqlClient.MySqlConnection db, MySql.Data.MySqlClient.MySqlTransaction trans, string query, out long identity, params object[] args)
-		{
-			Stopwatch sw = new Stopwatch();
+
+        /// <summary>
+        /// Executes a query on a database and sets identity to the last inserted identity in that table.
+        /// </summary>
+        /// <param name="olddb">Database to query</param>
+        /// <param name="query">Query string with parameters as @0, @1, etc.</param>
+        /// <param name="args">Parameters to be put in the query</param>
+        /// <returns>Rows affected by query</returns>
+        [SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities")]
+        public static int QueryIdentity(this SqliteConnection olddb, string query, out long identity, params object[] args)
+        {
 			int affected = 0;
-			sw.Start();
+            identity = -1;
 
-			using (var com = db.CreateCommand()) {
-				com.CommandText = query;
-				com.Transaction = trans;
-				com.CommandTimeout = 60;
+            using (var db = new SqliteConnection(olddb.ConnectionString))
+            {
+                try
+                {
+                    db.Open();
+                    using (var com = db.CreateCommand())
+                    {
+                        com.CommandText = query;
+                        com.CommandTimeout = 60;
 
-				for (int i = 0; i < args.Length; i++)
-					com.AddParameter("@" + i, args[i]);
+                        for (int i = 0; i < args.Length; i++)
+                            com.AddParameter("@" + i, args[i]);
 
-				try {
-					affected = com.ExecuteNonQuery();
-				} catch (Exception ex) {
-					TShock.Log.ConsoleError("[SEconomy MySQL] Query error: {0}", ex.Message);
-					affected = -1;
-				}
-				identity = com.LastInsertedId;
-			}
+                        affected = com.ExecuteNonQuery();
 
-			sw.Stop();
-			if (sw.Elapsed.TotalSeconds > 10) {
-				TShock.Log.ConsoleError("[SEconomy MySQL] Your MySQL server took {0} seconds to respond!\r\nConsider squashing your journal.", sw.Elapsed.TotalSeconds);
-			}
+						using(var searchCmd = db.CreateCommand())
+						{
+							searchCmd.CommandText = @"SELECT last_insert_rowid()";
+							identity = (long)searchCmd.ExecuteScalar();
+						}
+                    }
+                }
+                catch (Exception ex)
+                {
+                    TShock.Log.ConsoleError("[SEconomy MySQL] Query error: {0}", ex.Message);
+                    affected = -1;
+                }
+            }
 
-			return affected;
-		}
 
-		/// <summary>
-		/// Executes a query on a database.
-		/// </summary>
-		/// <param name="olddb">Database to query</param>
-		/// <param name="query">Query string with parameters as @0, @1, etc.</param>
-		/// <param name="args">Parameters to be put in the query</param>
-		/// <returns>Query result as IDataReader</returns>
-		[SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities")]
-		public static T QueryScalar<T>(this MySql.Data.MySqlClient.MySqlConnection olddb, string query, params object[] args)
+
+            return affected;
+        }
+
+        public static int QueryIdentityTransaction(this MySql.Data.MySqlClient.MySqlConnection db, MySql.Data.MySqlClient.MySqlTransaction trans, string query, out long identity, params object[] args)
+        {
+            Stopwatch sw = new Stopwatch();
+            int affected = 0;
+            sw.Start();
+
+            using (var com = db.CreateCommand())
+            {
+                com.CommandText = query;
+                com.Transaction = trans;
+                com.CommandTimeout = 60;
+
+                for (int i = 0; i < args.Length; i++)
+                    com.AddParameter("@" + i, args[i]);
+
+                try
+                {
+                    affected = com.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    TShock.Log.ConsoleError("[SEconomy MySQL] Query error: {0}", ex.Message);
+                    affected = -1;
+                }
+                identity = com.LastInsertedId;
+            }
+
+            sw.Stop();
+            if (sw.Elapsed.TotalSeconds > 10)
+            {
+                TShock.Log.ConsoleError("[SEconomy MySQL] Your MySQL server took {0} seconds to respond!\r\nConsider squashing your journal.", sw.Elapsed.TotalSeconds);
+            }
+
+            return affected;
+        }
+
+        public static int QueryIdentityTransaction(this SqliteConnection db, SqliteTransaction trans, string query, out long identity, params object[] args)
+        {
+
+            int affected = 0;
+
+            using (var com = db.CreateCommand())
+            {
+                com.CommandText = query;
+                com.Transaction = trans;
+                com.CommandTimeout = 60;
+
+                for (int i = 0; i < args.Length; i++)
+                    com.AddParameter("@" + i, args[i]);
+
+                try
+                {
+                    affected = com.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    TShock.Log.ConsoleError("[SEconomy MySQL] Query error: {0}", ex.Message);
+                    affected = -1;
+                }
+                using (var searchCmd = db.CreateCommand())
+                {
+                    searchCmd.CommandText = @"SELECT last_insert_rowid()";
+                    identity = (long)searchCmd.ExecuteScalar();
+                }
+            }
+
+
+            return affected;
+        }
+
+        /// <summary>
+        /// Executes a query on a database.
+        /// </summary>
+        /// <param name="olddb">Database to query</param>
+        /// <param name="query">Query string with parameters as @0, @1, etc.</param>
+        /// <param name="args">Parameters to be put in the query</param>
+        /// <returns>Query result as IDataReader</returns>
+        [SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities")]
+		public static T QueryScalar<T>(this MySqlConnection olddb, string query, params object[] args)
 		{
 			Stopwatch sw = new Stopwatch();
 			object result = null;
@@ -245,7 +334,53 @@ namespace Wolfje.Plugins.SEconomy.Extensions {
 			return (T)result;
 		}
 
-		public static T QueryScalarExisting<T>(this IDbConnection db, string query, params object[] args)
+        /// <summary>
+        /// Executes a query on a database.
+        /// </summary>
+        /// <param name="olddb">Database to query</param>
+        /// <param name="query">Query string with parameters as @0, @1, etc.</param>
+        /// <param name="args">Parameters to be put in the query</param>
+        /// <returns>Query result as IDataReader</returns>
+        [SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities")]
+        public static T QueryScalar<T>(this SqliteConnection olddb, string query, params object[] args)
+        {
+
+            object result = null;
+
+            try
+            {
+                using (var db = new SqliteConnection(olddb.ConnectionString))
+                {
+                    db.Open();
+
+                    using (var com = db.CreateCommand())
+                    {
+                        com.CommandText = query;
+                        com.CommandTimeout = 60;
+
+                        for (int i = 0; i < args.Length; i++)
+                        {
+                            com.AddParameter("@" + i, args[i]);
+                        }
+
+                        if ((result = com.ExecuteScalar()) == null)
+                        {
+                            return default(T);
+                        }
+
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                TShock.Log.ConsoleError("[SEconomy MySQL] Query error: {0}", ex.Message);
+                result = default(T);
+            }
+
+            return (T)result;
+        }
+
+        public static T QueryScalarExisting<T>(this IDbConnection db, string query, params object[] args)
 		{
 			Stopwatch sw = new Stopwatch();
 			object result = null;

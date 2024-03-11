@@ -64,6 +64,8 @@ namespace Wolfje.Plugins.SEconomy.Journal.SqliteJournal
 
 		public bool BackupsEnabled { get; set; }
 
+		public bool RunningTransaction { get; private set; }
+
 		public List<IBankAccount> BankAccounts {
 			get { return bankAccounts; }
 		}
@@ -525,6 +527,8 @@ namespace Wolfje.Plugins.SEconomy.Journal.SqliteJournal
 										  WHERE bank_account_id = @0;";
 
             Stopwatch sw = new Stopwatch();
+
+
 			if (SEconomyInstance.Configuration.EnableProfiler == true) {
 				sw.Start();
 			}
@@ -567,8 +571,22 @@ namespace Wolfje.Plugins.SEconomy.Journal.SqliteJournal
 			args.TransferOptions = Options;
 			args.TransactionMessage = pendingTransaction.TransactionMessage;
 
-			try {
-				sqlTrans = conn.BeginTransaction();
+            try
+            {
+
+				while (RunningTransaction)
+				{
+					Thread.Sleep(25);
+				}
+
+				RunningTransaction = true;
+
+                if (conn.State != System.Data.ConnectionState.Open)
+                {
+                    conn.Open();
+                }
+
+                sqlTrans = conn.BeginTransaction();
 				if ((sourceTran = BeginSourceTransaction(sqlTrans, FromAccount.BankAccountK, pendingTransaction.Amount, pendingTransaction.JournalLogMessage)) == null) {
 					throw new Exception("BeginSourceTransaction failed");
 				}
@@ -579,7 +597,9 @@ namespace Wolfje.Plugins.SEconomy.Journal.SqliteJournal
 
 				BindTransactions(sqlTrans, sourceTran.BankAccountTransactionK, destTran.BankAccountTransactionK);
 				sqlTrans.Commit();
-			} catch (Exception ex) {
+
+                RunningTransaction = false;
+            } catch (Exception ex) {
 				if (conn != null
 				    && conn.State == System.Data.ConnectionState.Open) {
 					try {
@@ -590,6 +610,9 @@ namespace Wolfje.Plugins.SEconomy.Journal.SqliteJournal
 				}
 				TShock.Log.ConsoleError("[SEconomy Sqlite] Database error in transfer:" + ex.ToString());
 				args.Exception = ex;
+
+				RunningTransaction = false;
+
 				return args;
 			} finally {
 				if (conn != null) {

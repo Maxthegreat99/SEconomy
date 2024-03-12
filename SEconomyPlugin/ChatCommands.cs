@@ -250,18 +250,25 @@ namespace Wolfje.Plugins.SEconomy
 
 					if (!Money.TryParse(args.Parameters[2], out var amount))
 					{
-						player.SendErrorMessage(GetString(55, "[Bank Give] \"{0}\" isn't a valid amount of money."), args.Parameters[2]);
+						player.SendErrorMessage("[Bank Pay] \"{0}\" isn't a valid amount of money.", args.Parameters[2]);
 						return;
 					}
-
+					
 					if (callerAccount == null)
 					{
 						player.SendErrorMessage("[Bank Pay] Bank account error.");
 						return;
 					}
 
-					//Instruct the world bank to give the player money.
-					await callerAccount.TransferToAsync(selectedAccount, amount,
+                    if (callerAccount.Balance < amount && !callerAccount.IsSystemAccount)
+                    {
+                        player.SendErrorMessage("[Bank Pay] Theres less than {0} stored in your bank account", amount.ToString());
+                        return;
+                    }
+
+
+                    //Instruct the world bank to give the player money.
+                    await callerAccount.TransferToAsync(selectedAccount, amount,
 							BankAccountTransferOptions.AnnounceToReceiver
 							| BankAccountTransferOptions.AnnounceToSender
 							| BankAccountTransferOptions.IsPlayerToPlayerTransfer,

@@ -99,7 +99,7 @@ namespace Wolfje.Plugins.SEconomy
 						return;
 					}
 
-					if (args.Parameters.Count == 1 || !string.IsNullOrEmpty(args.Parameters[1]))
+					if (args.Parameters.Count == 1 || string.IsNullOrEmpty(args.Parameters[1]))
 					{
 						player.SendErrorMessage("[SEconomy Reset] Invalid subcommand usage.");
 						return;

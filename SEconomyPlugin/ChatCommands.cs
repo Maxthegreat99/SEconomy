@@ -240,7 +240,7 @@ namespace Wolfje.Plugins.SEconomy
 						return;
 					}
 
-					selectedAccount = Parent.GetPlayerBankAccount(args.Parameters[1]);
+					selectedAccount = Parent.RunningJournal.GetBankAccountByName(args.Parameters[1]);
 
 					if (selectedAccount == null)
 					{
